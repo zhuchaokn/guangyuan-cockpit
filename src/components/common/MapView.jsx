@@ -19,7 +19,8 @@ let geoJsonCache = null;
 async function ensureMapRegistered() {
   if (mapRegistered && geoJsonCache) return geoJsonCache;
   try {
-    const res = await fetch('/guangyuan.json');
+    const base = import.meta.env.BASE_URL || '/';
+    const res = await fetch(`${base}guangyuan.json`);
     geoJsonCache = await res.json();
     echarts.registerMap('guangyuan', geoJsonCache);
     mapRegistered = true;
