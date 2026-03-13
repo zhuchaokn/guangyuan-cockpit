@@ -49,12 +49,42 @@ export default function useTrafficSafety() {
       xAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(148,163,184,.1)' } } },
       yAxis: { type: 'category', data: drivers.byType.map((d) => d.type), axisLine: { show: false }, axisLabel: { color: '#94a3b8' } },
       series: [{ type: 'bar', data: drivers.byType.map((d) => d.count), itemStyle: { color: '#00d4ff' }, barWidth: '60%' }],
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(5,11,26,.95)',
+        borderColor: 'rgba(0,212,255,.3)',
+        textStyle: { color: '#e2e8f0', fontSize: 12 },
+        formatter: (params) => {
+          const type = params[0].name;
+          const total = params[0].value;
+          let html = `<b>${type}</b> 总计: ${total.toLocaleString()}<br/><br/>`;
+          const districts = ['利州区','昭化区','朝天区','旺苍县','青川县','剑阁县','苍溪县'];
+          districts.forEach(d => {
+            const val = drivers.districtDetail[d]?.[type] || 0;
+            if (val > 0) {
+              const barW = Math.round((val / total) * 100);
+              html += `<div style="display:flex;align-items:center;gap:6px;margin:2px 0">` +
+                `<span style="width:48px;font-size:11px">${d}</span>` +
+                `<div style="flex:1;height:6px;background:rgba(255,255,255,.1);border-radius:3px">` +
+                `<div style="width:${barW}%;height:100%;background:#00d4ff;border-radius:3px"></div></div>` +
+                `<span style="font-size:11px;min-width:45px;text-align:right">${val.toLocaleString()}</span></div>`;
+            }
+          });
+          return html;
+        }
+      }
     };
     const vehicleOpt = {
       ...chartBase,
       xAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(148,163,184,.1)' } } },
       yAxis: { type: 'category', data: vehicles.byUsage.map((d) => d.type), axisLine: { show: false }, axisLabel: { color: '#94a3b8' } },
       series: [{ type: 'bar', data: vehicles.byUsage.map((d) => d.count), itemStyle: { color: '#22c55e' }, barWidth: '60%' }],
+      tooltip: {
+        trigger: 'axis',
+        backgroundColor: 'rgba(5,11,26,.95)',
+        borderColor: 'rgba(0,212,255,.3)',
+        textStyle: { color: '#e2e8f0' },
+      }
     };
     leftPanel = (
       <>

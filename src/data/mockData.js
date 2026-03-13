@@ -137,10 +137,10 @@ export const trafficStatusData = {
     hourlyToday: HOURS.map((_, i) => ({ hour: HOURS[i], value: i < 6 ? randFloat(1, 2) : i < 9 ? randFloat(3, 5.5) : i < 11 ? randFloat(2.5, 4) : i < 14 ? randFloat(2, 3.5) : i < 17 ? randFloat(2.5, 4) : i < 20 ? randFloat(3.5, 5.8) : randFloat(1.5, 3) })),
     hourlyLastWeek: HOURS.map((_, i) => ({ hour: HOURS[i], value: i < 6 ? randFloat(1, 2) : i < 9 ? randFloat(2.8, 5) : i < 11 ? randFloat(2.2, 3.8) : i < 14 ? randFloat(1.8, 3.2) : i < 17 ? randFloat(2.2, 3.8) : i < 20 ? randFloat(3.2, 5.5) : randFloat(1.2, 2.8) })),
     squadRank: [
-      { name: '利州大队', index: 3.8, change: 5.2 }, { name: '昭化大队', index: 2.9, change: -2.1 },
-      { name: '朝天大队', index: 2.1, change: 1.3 }, { name: '旺苍大队', index: 2.5, change: -0.8 },
-      { name: '青川大队', index: 1.8, change: 0.5 }, { name: '剑阁大队', index: 2.2, change: 3.1 },
-      { name: '苍溪大队', index: 2.6, change: -1.2 }
+      { name: '利州大队', index: 3.8, change: 5.2, activeCount: 32400 }, { name: '昭化大队', index: 2.9, change: -2.1, activeCount: 12800 },
+      { name: '朝天大队', index: 2.1, change: 1.3, activeCount: 8600 }, { name: '旺苍大队', index: 2.5, change: -0.8, activeCount: 10200 },
+      { name: '青川大队', index: 1.8, change: 0.5, activeCount: 6800 }, { name: '剑阁大队', index: 2.2, change: 3.1, activeCount: 9400 },
+      { name: '苍溪大队', index: 2.6, change: -1.2, activeCount: 11200 }
     ],
     congestionRoads: [
       { rank: 1, name: '蜀门南路', index: 5.8, speed: 18.2, frequent: true },
@@ -148,6 +148,18 @@ export const trafficStatusData = {
       { rank: 3, name: '万缘街', index: 4.8, speed: 23.1, frequent: false },
       { rank: 4, name: '嘉陵路', index: 4.5, speed: 24.8, frequent: true },
       { rank: 5, name: '东坝大道', index: 4.2, speed: 26.3, frequent: false }
+    ],
+    congestionAreas: [
+      { rank: 1, name: '老城核心区', index: 4.6, speed: 22.5 },
+      { rank: 2, name: '东坝商圈', index: 4.1, speed: 25.8 },
+      { rank: 3, name: '南河片区', index: 3.8, speed: 27.2 },
+      { rank: 4, name: '上西坝区域', index: 3.2, speed: 30.1 },
+      { rank: 5, name: '宝轮镇区', index: 2.8, speed: 32.6 }
+    ],
+    watchList: [
+      { rank: 1, name: '蜀门南路', type: '路段', index: 5.8, speed: 18.2 },
+      { rank: 2, name: '老城核心区', type: '区域', index: 4.6, speed: 22.5 },
+      { rank: 3, name: '利州东路', type: '路段', index: 5.2, speed: 21.5 }
     ]
   },
   activeVehicles: {
@@ -155,6 +167,12 @@ export const trafficStatusData = {
     hourly: HOURS.map((_, i) => ({ hour: HOURS[i], today: i < 6 ? rand(2000, 8000) : i < 9 ? rand(35000, 65000) : i < 17 ? rand(50000, 80000) : i < 21 ? rand(40000, 70000) : rand(5000, 20000), lastWeek: i < 6 ? rand(1800, 7500) : i < 9 ? rand(33000, 60000) : i < 17 ? rand(48000, 78000) : i < 21 ? rand(38000, 68000) : rand(4500, 18000) })),
     origin: [{ name: '本市', value: 65 }, { name: '本省外市', value: 22 }, { name: '外省', value: 13 }],
     plateType: [{ name: '小型车', value: 78 }, { name: '大型车', value: 15 }, { name: '其他', value: 7 }]
+  },
+  transitVehicles: {
+    today: 23156, change: -2.1,
+    hourly: HOURS.map((_, i) => ({ hour: HOURS[i], today: i < 6 ? rand(1000, 4000) : i < 9 ? rand(12000, 20000) : i < 17 ? rand(18000, 25000) : i < 21 ? rand(14000, 22000) : rand(2000, 6000), lastWeek: i < 6 ? rand(800, 3500) : i < 9 ? rand(11000, 19000) : i < 17 ? rand(17000, 24000) : i < 21 ? rand(13000, 21000) : rand(1800, 5500) })),
+    origin: [{ name: '本市', value: 58 }, { name: '本省外市', value: 28 }, { name: '外省', value: 14 }],
+    plateType: [{ name: '小型车', value: 72 }, { name: '大型车', value: 20 }, { name: '其他', value: 8 }]
   },
   inboundVehicles: {
     today: 45230, change: 6.1,
@@ -166,6 +184,18 @@ export const trafficStatusData = {
       { rank: 3, name: '108国道北入口', flow5min: 85, dayTotal: 6450, change: 3.8, ratio: 14.3 },
       { rank: 4, name: '212国道南入口', flow5min: 72, dayTotal: 5680, change: 1.5, ratio: 12.6 },
       { rank: 5, name: '绵广高速入口', flow5min: 68, dayTotal: 5120, change: -0.8, ratio: 11.3 }
+    ]
+  },
+  outboundVehicles: {
+    today: 42890, change: 3.8,
+    hourly: HOURS.map((_, i) => ({ hour: HOURS[i], today: i < 6 ? rand(400, 1800) : i < 9 ? rand(6000, 12000) : i < 17 ? rand(10000, 20000) : i < 21 ? rand(9000, 18000) : rand(800, 3500) })),
+    origin: [{ name: '本市', value: 48 }, { name: '本省外市', value: 32 }, { name: '外省', value: 20 }],
+    topCheckpoints: [
+      { rank: 1, name: '广陕高速出口', flow5min: 118, dayTotal: 8320, change: 3.8, ratio: 19.4 },
+      { rank: 2, name: '广巴高速出口', flow5min: 92, dayTotal: 6980, change: -1.5, ratio: 16.3 },
+      { rank: 3, name: '108国道南出口', flow5min: 78, dayTotal: 5860, change: 2.2, ratio: 13.7 },
+      { rank: 4, name: '212国道北出口', flow5min: 65, dayTotal: 5240, change: 0.6, ratio: 12.2 },
+      { rank: 5, name: '绵广高速出口', flow5min: 62, dayTotal: 4890, change: -2.3, ratio: 11.4 }
     ]
   }
 };

@@ -22,31 +22,62 @@ export default function useFourColorWarning() {
     accidentHeatmap,
   } = fourColorWarningData;
 
+  const [hoveredDistrict, setHoveredDistrict] = useState(null);
+
   // 1. 四色预警评分 - Table
   const scoreTable = (
-    <table style={{ width: '100%', fontSize: '.78rem', borderCollapse: 'collapse' }}>
-      <thead>
-        <tr style={{ color: 'var(--text-dim)', borderBottom: '1px solid var(--border-dim)' }}>
-          <th style={{ padding: '8px 6px', textAlign: 'left' }}>区县</th>
-          <th style={{ padding: '8px 6px', textAlign: 'right' }}>得分</th>
-          <th style={{ padding: '8px 6px', textAlign: 'center', width: 60 }}>预警</th>
-        </tr>
-      </thead>
-      <tbody>
-        {districtScores.map((d) => (
-          <tr key={d.name} style={{ borderBottom: '1px solid rgba(0,212,255,.06)' }}>
-            <td style={{ padding: '8px 6px', color: 'var(--text-primary)' }}>{d.name}</td>
-            <td style={{ padding: '8px 6px', textAlign: 'right', color: 'var(--text-primary)', fontFamily: 'JetBrains Mono' }}>{d.score}</td>
-            <td style={{ padding: '8px 6px', textAlign: 'center' }}>
-              <span style={{
-                display: 'inline-block', width: 10, height: 10, borderRadius: '50%',
-                background: d.color, boxShadow: `0 0 6px ${d.color}`,
-              }} />
-            </td>
+    <div style={{ position: 'relative' }}>
+      <table style={{ width: '100%', fontSize: '.78rem', borderCollapse: 'collapse' }}>
+        <thead>
+          <tr style={{ color: 'var(--text-dim)', borderBottom: '1px solid var(--border-dim)' }}>
+            <th style={{ padding: '8px 6px', textAlign: 'left' }}>区县</th>
+            <th style={{ padding: '8px 6px', textAlign: 'right' }}>得分</th>
+            <th style={{ padding: '8px 6px', textAlign: 'center', width: 60 }}>预警</th>
           </tr>
-        ))}
-      </tbody>
-    </table>
+        </thead>
+        <tbody>
+          {districtScores.map((d) => (
+            <tr
+              key={d.name}
+              style={{ borderBottom: '1px solid rgba(0,212,255,.06)' }}
+              onMouseEnter={() => setHoveredDistrict(d.name)}
+              onMouseLeave={() => setHoveredDistrict(null)}
+            >
+              <td style={{ padding: '8px 6px', color: 'var(--text-primary)' }}>{d.name}</td>
+              <td style={{ padding: '8px 6px', textAlign: 'right', color: 'var(--text-primary)', fontFamily: 'JetBrains Mono' }}>{d.score}</td>
+              <td style={{ padding: '8px 6px', textAlign: 'center' }}>
+                <span style={{
+                  display: 'inline-block', width: 10, height: 10, borderRadius: '50%',
+                  background: d.color, boxShadow: `0 0 6px ${d.color}`,
+                }} />
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {hoveredDistrict && (() => {
+        const d = districtScores.find(x => x.name === hoveredDistrict);
+        if (!d) return null;
+        return (
+          <div style={{
+            position: 'absolute', top: 0, right: -10, transform: 'translateX(100%)',
+            background: 'rgba(5,11,26,.95)', border: '1px solid rgba(0,212,255,.3)',
+            borderRadius: 6, padding: '10px 14px', fontSize: '.75rem', color: '#e2e8f0',
+            zIndex: 20, minWidth: 160, boxShadow: '0 4px 20px rgba(0,0,0,.5)',
+          }}>
+            <div style={{ fontWeight: 700, marginBottom: 6, color: d.color }}>{d.name} 扣分详情</div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 16px', fontSize: '.72rem' }}>
+              <span>人: <b style={{color:'var(--red)'}}>-{d.deductions.person}</b></span>
+              <span>车: <b style={{color:'var(--red)'}}>-{d.deductions.vehicle}</b></span>
+              <span>路: <b style={{color:'var(--red)'}}>-{d.deductions.road}</b></span>
+              <span>企业: <b style={{color:'var(--red)'}}>-{d.deductions.enterprise}</b></span>
+              <span>事故: <b style={{color:'var(--red)'}}>-{d.deductions.accident}</b></span>
+              <span>站点: <b style={{color:'var(--red)'}}>-{d.deductions.station}</b></span>
+            </div>
+          </div>
+        );
+      })()}
+    </div>
   );
 
   // 2. 车辆隐患 - Grouped bar chart
