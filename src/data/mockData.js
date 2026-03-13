@@ -171,6 +171,12 @@ export const trafficStatusData = {
       { name: '重庆', count: 3240 }, { name: '陕西', count: 2180 }, { name: '甘肃', count: 1560 },
       { name: '河南', count: 1120 }, { name: '湖北', count: 890 }, { name: '贵州', count: 720 },
       { name: '云南', count: 480 }, { name: '其他', count: 1030 }
+    ],
+    squadRank: [
+      { name: '利州大队', count: 32400, change: 5.8 }, { name: '昭化大队', count: 12800, change: -1.6 },
+      { name: '朝天大队', count: 8600, change: 2.1 }, { name: '旺苍大队', count: 10200, change: -3.2 },
+      { name: '青川大队', count: 6800, change: 1.4 }, { name: '剑阁大队', count: 9400, change: 4.2 },
+      { name: '苍溪大队', count: 11200, change: -0.9 }
     ]
   },
   transitVehicles: {

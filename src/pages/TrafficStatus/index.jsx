@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import ReactECharts from 'echarts-for-react';
 import PanelCard from '../../components/common/PanelCard';
 import DataCard from '../../components/common/DataCard';
@@ -15,6 +15,10 @@ const CHART_BASE = {
 const X_AXIS = { type: 'category', axisLine: { lineStyle: { color: 'rgba(255,255,255,.06)' } }, axisLabel: { color: '#94a3b8' } };
 const Y_AXIS = { type: 'value', splitLine: { lineStyle: { color: 'rgba(255,255,255,.06)' } }, axisLine: { lineStyle: { color: 'rgba(255,255,255,.06)' } }, axisLabel: { color: '#94a3b8' } };
 const DISTRICTS_7 = ['利州区', '昭化区', '朝天区', '旺苍县', '青川县', '剑阁县', '苍溪县'];
+const SQUAD_TO_DISTRICT = {
+  '利州大队': '利州区', '昭化大队': '昭化区', '朝天大队': '朝天区',
+  '旺苍大队': '旺苍县', '青川大队': '青川县', '剑阁大队': '剑阁县', '苍溪大队': '苍溪县',
+};
 const randFloat = (min, max) => +(Math.random() * (max - min) + min).toFixed(1);
 
 const TRAFFIC_LAST_MONTH = trafficStatusData.trafficIndex.hourlyLastWeek.map(
@@ -35,11 +39,17 @@ function TabBar({ tabs, active, onChange }) {
 
 function CompareSelector({ value, onChange }) {
   return (
-    <select value={value} onChange={(e) => onChange(e.target.value)} className="compare-select">
-      <option value="today-lastweek">今日vs上周</option>
-      <option value="today-lastmonth">今日vs上月</option>
-      <option value="custom">自定义</option>
-    </select>
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>
+      <select value={value} onChange={(e) => onChange(e.target.value)} className="compare-select">
+        <option value="today-lastweek">今日vs上周</option>
+        <option value="today-lastmonth">今日vs上月</option>
+        <option value="custom">自定义</option>
+      </select>
+      {value === 'custom' && (
+        <input type="date" defaultValue="2026-03-13" className="compare-select"
+          style={{ width: 110, fontSize: '.7rem' }} />
+      )}
+    </div>
   );
 }
 
@@ -234,6 +244,21 @@ export default function useTrafficStatus() {
   const [expandedCpIn, setExpandedCpIn] = useState(null);
   const [expandedCpOut, setExpandedCpOut] = useState(null);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
+  const autoRotateRef = useRef(null);
+
+  const isDistrictRankActive = (activeTab === '城市概况' && (vehicleInnerTab === '辖区排名' || driverInnerTab === '辖区排名' || roadInnerTab === '辖区排名'));
+
+  useEffect(() => {
+    if (autoRotateRef.current) clearInterval(autoRotateRef.current);
+    if (!isDistrictRankActive) { setSelectedDistrict(null); return; }
+    let idx = 0;
+    setSelectedDistrict(DISTRICTS_7[0]);
+    autoRotateRef.current = setInterval(() => {
+      idx = (idx + 1) % DISTRICTS_7.length;
+      setSelectedDistrict(DISTRICTS_7[idx]);
+    }, 5000);
+    return () => { if (autoRotateRef.current) clearInterval(autoRotateRef.current); };
+  }, [isDistrictRankActive]);
 
   const {
     vehicleOwnership, driverOwnership, roadNetwork, trafficIndex,
@@ -492,6 +517,7 @@ export default function useTrafficStatus() {
               <span className={`change ${s.change >= 0 ? 'up' : 'down'}`}>
                 {s.change >= 0 ? '+' : ''}{s.change}%
               </span>
+              <span className="loc-btn" onClick={() => setSelectedDistrict(SQUAD_TO_DISTRICT[s.name] || null)}>📍</span>
             </li>
           ))}
         </ul>
@@ -594,14 +620,15 @@ export default function useTrafficStatus() {
 
       <PanelCard title="大队分析">
         <ul className="rank-list">
-          {trafficIndex.squadRank.map((s, i) => (
+          {activeVehicles.squadRank.map((s, i) => (
             <li key={s.name}>
               <span className="rank">{i + 1}</span>
               <span className="name">{s.name}</span>
-              <span className="count">{s.activeCount.toLocaleString()}</span>
+              <span className="count">{s.count.toLocaleString()}</span>
               <span className={`change ${s.change >= 0 ? 'up' : 'down'}`}>
                 {s.change >= 0 ? '+' : ''}{s.change}%
               </span>
+              <span className="loc-btn" onClick={() => setSelectedDistrict(SQUAD_TO_DISTRICT[s.name] || null)}>📍</span>
             </li>
           ))}
         </ul>
@@ -715,6 +742,8 @@ export default function useTrafficStatus() {
         .rank-list .change { font-size: .75rem; }
         .rank-list .change.up { color: #22c55e; }
         .rank-list .change.down { color: #ef4444; }
+        .rank-list .loc-btn { cursor: pointer; font-size: .85rem; opacity: .5; transition: opacity .2s; }
+        .rank-list .loc-btn:hover { opacity: 1; }
         .rank-list.compact li { padding: 5px 0; font-size: .78rem; }
 
         .gauge-row { display: flex; gap: 16px; }
@@ -827,10 +856,25 @@ export default function useTrafficStatus() {
     </div>
   );
 
+  const getMapDistrictColors = () => {
+    if (selectedDistrict) return [{ name: selectedDistrict, color: '#00d4ff', score: '' }];
+    if (activeTab === '城市概况' && vehicleInnerTab === '两率') {
+      return DISTRICTS_7.map(d => {
+        const rate = randFloat(85, 98);
+        return { name: d, color: rate > 92 ? '#22c55e' : rate > 85 ? '#f59e0b' : '#ef4444', score: rate + '%' };
+      });
+    }
+    if (activeTab === '城市概况' && driverInnerTab === '两率') {
+      return DISTRICTS_7.map(d => {
+        const rate = randFloat(82, 96);
+        return { name: d, color: rate > 90 ? '#22c55e' : rate > 82 ? '#f59e0b' : '#ef4444', score: rate + '%' };
+      });
+    }
+    return undefined;
+  };
+
   const mapContent = (
-    <MapView
-      districtColors={selectedDistrict ? [{ name: selectedDistrict, score: 100 }] : undefined}
-    />
+    <MapView districtColors={getMapDistrictColors()} />
   );
 
   return { leftPanel, rightPanel, mapContent };
