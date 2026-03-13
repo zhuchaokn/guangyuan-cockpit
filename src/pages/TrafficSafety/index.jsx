@@ -83,13 +83,33 @@ export default function useTrafficSafety() {
         trigger: 'axis',
         backgroundColor: 'rgba(5,11,26,.95)',
         borderColor: 'rgba(0,212,255,.3)',
-        textStyle: { color: '#e2e8f0' },
+        textStyle: { color: '#e2e8f0', fontSize: 12 },
+        formatter: (params) => {
+          const type = params[0].name;
+          const total = params[0].value;
+          let html = `<b>${type}</b> 总计: ${total.toLocaleString()}<br/><br/>`;
+          const districts = ['利州区','昭化区','朝天区','旺苍县','青川县','剑阁县','苍溪县'];
+          districts.forEach(d => {
+            const val = vehicles.districtDetail[d]?.[type] || 0;
+            if (val > 0) {
+              const barW = Math.round((val / total) * 100);
+              html += `<div style="display:flex;align-items:center;gap:6px;margin:2px 0">` +
+                `<span style="width:48px;font-size:11px">${d}</span>` +
+                `<div style="flex:1;height:6px;background:rgba(255,255,255,.1);border-radius:3px">` +
+                `<div style="width:${barW}%;height:100%;background:#22c55e;border-radius:3px"></div></div>` +
+                `<span style="font-size:11px;min-width:45px;text-align:right">${val.toLocaleString()}</span></div>`;
+            }
+          });
+          return html;
+        }
       }
     };
     leftPanel = (
       <>
         {subTabBar}
         <PanelCard title="驾驶人">
+          <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '1.5rem', fontWeight: 700, color: '#00d4ff', marginBottom: 8 }}>{drivers.total.toLocaleString()}</div>
+          <div style={{ fontSize: '.72rem', color: '#64748b', marginBottom: 12 }}>全市驾驶人总量</div>
           <ReactECharts option={driverOpt} style={{ height: 280 }} opts={{ renderer: 'canvas' }} />
         </PanelCard>
       </>
@@ -98,6 +118,8 @@ export default function useTrafficSafety() {
       <>
         {subTabBar}
         <PanelCard title="车辆">
+          <div style={{ fontFamily: "'Orbitron', monospace", fontSize: '1.5rem', fontWeight: 700, color: '#22c55e', marginBottom: 8 }}>{vehicles.total.toLocaleString()}</div>
+          <div style={{ fontSize: '.72rem', color: '#64748b', marginBottom: 12 }}>全市车辆保有量</div>
           <ReactECharts option={vehicleOpt} style={{ height: 280 }} opts={{ renderer: 'canvas' }} />
         </PanelCard>
       </>

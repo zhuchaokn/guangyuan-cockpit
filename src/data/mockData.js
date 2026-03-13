@@ -73,7 +73,7 @@ export const mapOverviewData = {
     alarmTrend: genTrend(22, 7, 8)
   },
   resources: [
-    { name: '视频监控', icon: 'camera', total: 1245, online: 1198, rate: 96.2, color: '#00d4ff' },
+    { name: '监控点位', icon: 'camera', total: 1245, online: 1198, rate: 96.2, color: '#00d4ff' },
     { name: '卡口', icon: 'checkpoint', total: 86, online: 82, rate: 95.3, color: '#22c55e' },
     { name: '移动设备', icon: 'mobile', total: 324, online: 289, rate: 89.2, color: '#f59e0b' },
     { name: '电子警察', icon: 'police', total: 156, online: 150, rate: 96.1, color: '#818cf8' },
@@ -164,19 +164,30 @@ export const trafficStatusData = {
   },
   activeVehicles: {
     today: 86432, change: 8.3,
-    hourly: HOURS.map((_, i) => ({ hour: HOURS[i], today: i < 6 ? rand(2000, 8000) : i < 9 ? rand(35000, 65000) : i < 17 ? rand(50000, 80000) : i < 21 ? rand(40000, 70000) : rand(5000, 20000), lastWeek: i < 6 ? rand(1800, 7500) : i < 9 ? rand(33000, 60000) : i < 17 ? rand(48000, 78000) : i < 21 ? rand(38000, 68000) : rand(4500, 18000) })),
+    hourly: HOURS.map((_, i) => ({ hour: HOURS[i], today: i < 6 ? rand(2000, 8000) : i < 9 ? rand(35000, 65000) : i < 17 ? rand(50000, 80000) : i < 21 ? rand(40000, 70000) : rand(5000, 20000), lastWeek: i < 6 ? rand(1800, 7500) : i < 9 ? rand(33000, 60000) : i < 17 ? rand(48000, 78000) : i < 21 ? rand(38000, 68000) : rand(4500, 18000), lastMonth: i < 6 ? rand(1500, 7000) : i < 9 ? rand(30000, 58000) : i < 17 ? rand(45000, 75000) : i < 21 ? rand(36000, 65000) : rand(4000, 16000) })),
     origin: [{ name: '本市', value: 65 }, { name: '本省外市', value: 22 }, { name: '外省', value: 13 }],
-    plateType: [{ name: '小型车', value: 78 }, { name: '大型车', value: 15 }, { name: '其他', value: 7 }]
+    plateType: [{ name: '小型车', value: 78 }, { name: '大型车', value: 15 }, { name: '其他', value: 7 }],
+    provinceDetail: [
+      { name: '重庆', count: 3240 }, { name: '陕西', count: 2180 }, { name: '甘肃', count: 1560 },
+      { name: '河南', count: 1120 }, { name: '湖北', count: 890 }, { name: '贵州', count: 720 },
+      { name: '云南', count: 480 }, { name: '其他', count: 1030 }
+    ]
   },
   transitVehicles: {
     today: 23156, change: -2.1,
-    hourly: HOURS.map((_, i) => ({ hour: HOURS[i], today: i < 6 ? rand(1000, 4000) : i < 9 ? rand(12000, 20000) : i < 17 ? rand(18000, 25000) : i < 21 ? rand(14000, 22000) : rand(2000, 6000), lastWeek: i < 6 ? rand(800, 3500) : i < 9 ? rand(11000, 19000) : i < 17 ? rand(17000, 24000) : i < 21 ? rand(13000, 21000) : rand(1800, 5500) })),
+    hourly: HOURS.map((_, i) => ({ hour: HOURS[i], today: i < 6 ? rand(1000, 4000) : i < 9 ? rand(12000, 20000) : i < 17 ? rand(18000, 25000) : i < 21 ? rand(14000, 22000) : rand(2000, 6000), lastWeek: i < 6 ? rand(800, 3500) : i < 9 ? rand(11000, 19000) : i < 17 ? rand(17000, 24000) : i < 21 ? rand(13000, 21000) : rand(1800, 5500), lastMonth: i < 6 ? rand(700, 3200) : i < 9 ? rand(10000, 18000) : i < 17 ? rand(16000, 23000) : i < 21 ? rand(12000, 20000) : rand(1500, 5000) })),
     origin: [{ name: '本市', value: 58 }, { name: '本省外市', value: 28 }, { name: '外省', value: 14 }],
-    plateType: [{ name: '小型车', value: 72 }, { name: '大型车', value: 20 }, { name: '其他', value: 8 }]
+    plateType: [{ name: '小型车', value: 72 }, { name: '大型车', value: 20 }, { name: '其他', value: 8 }],
+    squadRank: [
+      { name: '利州大队', count: 8600, change: -1.2 }, { name: '昭化大队', count: 3200, change: 2.4 },
+      { name: '朝天大队', count: 2100, change: -0.8 }, { name: '旺苍大队', count: 2800, change: 1.5 },
+      { name: '青川大队', count: 1600, change: 0.3 }, { name: '剑阁大队', count: 2400, change: -2.1 },
+      { name: '苍溪大队', count: 2900, change: 1.8 }
+    ]
   },
   inboundVehicles: {
     today: 45230, change: 6.1,
-    hourly: HOURS.map((_, i) => ({ hour: HOURS[i], today: i < 6 ? rand(500, 2000) : i < 9 ? rand(8000, 15000) : i < 17 ? rand(12000, 22000) : i < 21 ? rand(8000, 16000) : rand(1000, 4000) })),
+    hourly: HOURS.map((_, i) => ({ hour: HOURS[i], today: i < 6 ? rand(500, 2000) : i < 9 ? rand(8000, 15000) : i < 17 ? rand(12000, 22000) : i < 21 ? rand(8000, 16000) : rand(1000, 4000), lastWeek: i < 6 ? rand(400, 1800) : i < 9 ? rand(7000, 14000) : i < 17 ? rand(11000, 20000) : i < 21 ? rand(7000, 15000) : rand(800, 3500), lastMonth: i < 6 ? rand(350, 1600) : i < 9 ? rand(6500, 13000) : i < 17 ? rand(10000, 19000) : i < 21 ? rand(6500, 14000) : rand(600, 3000) })),
     origin: [{ name: '本市', value: 45 }, { name: '本省外市', value: 35 }, { name: '外省', value: 20 }],
     topCheckpoints: [
       { rank: 1, name: '广陕高速入口', flow5min: 128, dayTotal: 8920, change: 5.2, ratio: 19.7 },
@@ -188,7 +199,7 @@ export const trafficStatusData = {
   },
   outboundVehicles: {
     today: 42890, change: 3.8,
-    hourly: HOURS.map((_, i) => ({ hour: HOURS[i], today: i < 6 ? rand(400, 1800) : i < 9 ? rand(6000, 12000) : i < 17 ? rand(10000, 20000) : i < 21 ? rand(9000, 18000) : rand(800, 3500) })),
+    hourly: HOURS.map((_, i) => ({ hour: HOURS[i], today: i < 6 ? rand(400, 1800) : i < 9 ? rand(6000, 12000) : i < 17 ? rand(10000, 20000) : i < 21 ? rand(9000, 18000) : rand(800, 3500), lastWeek: i < 6 ? rand(350, 1600) : i < 9 ? rand(5500, 11000) : i < 17 ? rand(9000, 18000) : i < 21 ? rand(8000, 16000) : rand(700, 3200), lastMonth: i < 6 ? rand(300, 1500) : i < 9 ? rand(5000, 10000) : i < 17 ? rand(8500, 17000) : i < 21 ? rand(7500, 15000) : rand(600, 2800) })),
     origin: [{ name: '本市', value: 48 }, { name: '本省外市', value: 32 }, { name: '外省', value: 20 }],
     topCheckpoints: [
       { rank: 1, name: '广陕高速出口', flow5min: 118, dayTotal: 8320, change: 3.8, ratio: 19.4 },
@@ -215,6 +226,10 @@ export const trafficSafetyData = {
   },
   vehicles: {
     total: 523680,
+    districtDetail: DISTRICTS.reduce((acc, d) => {
+      acc[d] = { '家庭自用': rand(35000, 65000), '货运': rand(5000, 12000), '公路客运': rand(2000, 6000), '出租客运': rand(1000, 3000), '公交客运': rand(500, 1500), '旅游客运': rand(300, 1000), '危化品运输': rand(200, 600), '教练车': rand(200, 500), '租赁': rand(150, 400), '其他': rand(3000, 8000) };
+      return acc;
+    }, {}),
     byUsage: [
       { type: '家庭自用', count: 345600 }, { type: '货运', count: 62800 },
       { type: '公路客运', count: 28400 }, { type: '出租客运', count: 15200 },

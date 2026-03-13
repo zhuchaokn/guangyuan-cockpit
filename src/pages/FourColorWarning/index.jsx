@@ -23,6 +23,7 @@ export default function useFourColorWarning() {
   } = fourColorWarningData;
 
   const [hoveredDistrict, setHoveredDistrict] = useState(null);
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
 
   // 1. 四色预警评分 - Table
   const scoreTable = (
@@ -146,6 +147,18 @@ export default function useFourColorWarning() {
 
   const leftPanel = (
     <>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
+        <span style={{ fontSize: '.8rem', color: '#94a3b8' }}>数据月份：</span>
+        <select
+          value={selectedMonth}
+          onChange={(e) => setSelectedMonth(Number(e.target.value))}
+          style={{ background: 'rgba(255,255,255,.05)', border: '1px solid rgba(255,255,255,.1)', color: '#00d4ff', borderRadius: 4, padding: '4px 8px', fontSize: '.8rem' }}
+        >
+          {Array.from({length: 12}, (_, i) => (
+            <option key={i} value={i}>{i + 1}月</option>
+          ))}
+        </select>
+      </div>
       <PanelCard title="四色预警评分">
         {scoreTable}
       </PanelCard>

@@ -5,8 +5,8 @@ const MODULES = [
   { key: 'traffic', label: '运行态势', icon: '📊' },
   { key: 'safety', label: '交通安全', icon: '🛡' },
   { key: 'warning', label: '四色预警', icon: '⚠' },
-  { key: 'flow', label: '道路流量', icon: '🚦' },
-  { key: 'vehicle', label: '车辆数据', icon: '🚗' },
+  { key: 'flow', label: '道路流量管理', icon: '🚦' },
+  { key: 'vehicle', label: '车辆数据管理', icon: '🚗' },
   { key: 'alert', label: '布控预警', icon: '🔔' },
 ];
 
