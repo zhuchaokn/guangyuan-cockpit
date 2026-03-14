@@ -78,12 +78,14 @@ export default function AMapView({
       const map = new AMap.Map(containerRef.current, {
         viewMode: '2D',
         zoom: zoom,
+        minZoom: 8,      // 最小缩放（看全市）
+        maxZoom: 18,     // 最大缩放（看街道/建筑）
         center: GY_CENTER,
         mapStyle: 'amap://styles/dark', // 深色主题
-        features: ['bg', 'road'], // 只显示背景和道路，不显示建筑物和POI
-        showLabel: false, // 不显示默认标签
+        features: ['bg', 'road', 'point'], // 背景+道路+POI标注
+        showLabel: true, // 显示标签（街道名称等）
         resizeEnable: true,
-        showIndoorMap: false, // 不显示室内地图
+        showIndoorMap: false,
       });
 
       // 添加缩放控件
@@ -207,7 +209,7 @@ export default function AMapView({
         const center = DISTRICT_CENTERS[name];
         if (center) {
           map.setCenter(center);
-          map.setZoom(11);
+          map.setZoom(14); // 放大到街道级别
         }
       });
 
@@ -395,9 +397,9 @@ export default function AMapView({
     const center = DISTRICT_CENTERS[districtDetail.name];
     if (!center) return;
 
-    // 移动到该辖区
+    // 移动到该辖区并放大到街道级别
     mapRef.current.setCenter(center, true, 500);
-    mapRef.current.setZoom(11, true, 500);
+    mapRef.current.setZoom(14, true, 500);
 
     // 高亮该辖区
     polygonsRef.current.forEach((polygon) => {
