@@ -182,18 +182,78 @@ export const trafficStatusData = {
       { name: '苍溪大队', index: 2.6, change: -1.2, activeCount: 11200 }
     ],
     congestionRoads: [
-      { rank: 1, name: '蜀门南路', index: 5.8, speed: 18.2, frequent: true },
-      { rank: 2, name: '利州东路', index: 5.2, speed: 21.5, frequent: true },
-      { rank: 3, name: '万缘街', index: 4.8, speed: 23.1, frequent: false },
-      { rank: 4, name: '嘉陵路', index: 4.5, speed: 24.8, frequent: true },
-      { rank: 5, name: '东坝大道', index: 4.2, speed: 26.3, frequent: false }
+      {
+        rank: 1, name: '蜀门南路', index: 5.8, speed: 18.2, frequent: true,
+        lng: 105.821, lat: 32.428,
+        path: [[105.815, 32.435], [105.821, 32.428], [105.827, 32.420]],
+        resources: { cameras: 8, police: 3, alerts: 2 },
+        detail: '南河大桥至老城方向，早高峰拥堵严重，建议绕行利州东路'
+      },
+      {
+        rank: 2, name: '利州东路', index: 5.2, speed: 21.5, frequent: true,
+        lng: 105.835, lat: 32.438,
+        path: [[105.828, 32.442], [105.835, 32.438], [105.842, 32.434]],
+        resources: { cameras: 6, police: 4, alerts: 1 },
+        detail: '市政府至东坝路段，商业区集中，车流量大'
+      },
+      {
+        rank: 3, name: '万缘街', index: 4.8, speed: 23.1, frequent: false,
+        lng: 105.845, lat: 32.432,
+        path: [[105.840, 32.436], [105.845, 32.432], [105.850, 32.428]],
+        resources: { cameras: 5, police: 2, alerts: 0 },
+        detail: '商业街区，周末及节假日易拥堵'
+      },
+      {
+        rank: 4, name: '嘉陵路', index: 4.5, speed: 24.8, frequent: true,
+        lng: 105.818, lat: 32.418,
+        path: [[105.812, 32.422], [105.818, 32.418], [105.824, 32.412]],
+        resources: { cameras: 7, police: 2, alerts: 1 },
+        detail: '连接老城与南河片区的主干道，早晚高峰拥堵'
+      },
+      {
+        rank: 5, name: '东坝大道', index: 4.2, speed: 26.3, frequent: false,
+        lng: 105.852, lat: 32.445,
+        path: [[105.846, 32.450], [105.852, 32.445], [105.858, 32.440]],
+        resources: { cameras: 4, police: 2, alerts: 0 },
+        detail: '新城区主干道，周末购物车流集中'
+      }
     ],
     congestionAreas: [
-      { rank: 1, name: '老城核心区', index: 4.6, speed: 22.5 },
-      { rank: 2, name: '东坝商圈', index: 4.1, speed: 25.8 },
-      { rank: 3, name: '南河片区', index: 3.8, speed: 27.2 },
-      { rank: 4, name: '上西坝区域', index: 3.2, speed: 30.1 },
-      { rank: 5, name: '宝轮镇区', index: 2.8, speed: 32.6 }
+      {
+        rank: 1, name: '老城核心区', index: 4.6, speed: 22.5,
+        lng: 105.820, lat: 32.425,
+        bounds: [[105.810, 32.418], [105.830, 32.432]],
+        stats: { congestionRatio: 18.5, unfinishedAlerts: 3, police: 8, cameras: 24 },
+        detail: '广元老城区，商业集中，道路狭窄'
+      },
+      {
+        rank: 2, name: '东坝商圈', index: 4.1, speed: 25.8,
+        lng: 105.840, lat: 32.440,
+        bounds: [[105.830, 32.432], [105.850, 32.448]],
+        stats: { congestionRatio: 14.2, unfinishedAlerts: 2, police: 6, cameras: 18 },
+        detail: '新兴商业区，大型商场集中'
+      },
+      {
+        rank: 3, name: '南河片区', index: 3.8, speed: 27.2,
+        lng: 105.828, lat: 32.412,
+        bounds: [[105.818, 32.405], [105.838, 32.420]],
+        stats: { congestionRatio: 11.8, unfinishedAlerts: 1, police: 5, cameras: 15 },
+        detail: '居民区为主，通勤高峰拥堵'
+      },
+      {
+        rank: 4, name: '上西坝区域', index: 3.2, speed: 30.1,
+        lng: 105.808, lat: 32.438,
+        bounds: [[105.798, 32.430], [105.818, 32.446]],
+        stats: { congestionRatio: 8.5, unfinishedAlerts: 1, police: 4, cameras: 12 },
+        detail: '交通枢纽区，火车站周边'
+      },
+      {
+        rank: 5, name: '宝轮镇区', index: 2.8, speed: 32.6,
+        lng: 105.752, lat: 32.398,
+        bounds: [[105.742, 32.390], [105.762, 32.406]],
+        stats: { congestionRatio: 5.2, unfinishedAlerts: 0, police: 3, cameras: 8 },
+        detail: '郊区城镇，节假日车流增加'
+      }
     ],
     watchList: [
       { rank: 1, name: '蜀门南路', type: '路段', index: 5.8, speed: 18.2 },

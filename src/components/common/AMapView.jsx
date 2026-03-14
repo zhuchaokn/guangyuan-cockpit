@@ -42,6 +42,13 @@ export default function AMapView({
   districtDetail,
   autoRotate = false,
   rotateInterval = 5000,
+  // 新增：拥堵路段和区域
+  congestionRoads = [],
+  congestionAreas = [],
+  onRoadClick,
+  onAreaClick,
+  selectedRoad,
+  selectedArea,
 }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -52,6 +59,9 @@ export default function AMapView({
   const infoWindowRef = useRef(null);
   const rotateTimerRef = useRef(null);
   const currentDistrictIndexRef = useRef(0);
+  const roadPolylinesRef = useRef([]);
+  const areaPolygonsRef = useRef([]);
+  const roadLabelsRef = useRef([]);
 
   // 初始化地图
   useEffect(() => {
@@ -68,6 +78,7 @@ export default function AMapView({
         'AMap.InfoWindow',
         'AMap.Marker',
         'AMap.Polygon',
+        'AMap.Polyline',
         'AMap.HeatMap',
       ],
     }).then((AMap) => {
@@ -417,6 +428,183 @@ export default function AMapView({
       }
     });
   }, [ready, districtDetail]);
+
+  // 渲染拥堵路段
+  useEffect(() => {
+    if (!ready || !mapRef.current || !AMapRef.current) return;
+
+    const AMap = AMapRef.current;
+    const map = mapRef.current;
+
+    // 清除旧的路段
+    roadPolylinesRef.current.forEach(polyline => polyline.setMap(null));
+    roadPolylinesRef.current = [];
+
+    if (congestionRoads.length === 0) return;
+
+    congestionRoads.forEach((road) => {
+      if (!road.path || road.path.length < 2) return;
+
+      const isSelected = selectedRoad?.rank === road.rank;
+      const color = road.index > 5 ? '#ef4444' : road.index > 3 ? '#f59e0b' : '#22c55e';
+
+      const polyline = new AMap.Polyline({
+        path: road.path,
+        strokeColor: color,
+        strokeWeight: isSelected ? 6 : 4,
+        strokeOpacity: isSelected ? 1 : 0.8,
+        isOutline: isSelected,
+        outlineColor: '#fff',
+        borderWeight: isSelected ? 2 : 0,
+        map: map,
+        extData: road,
+      });
+
+      // 添加路段名称标记
+      const centerLng = (road.path[0][0] + road.path[road.path.length - 1][0]) / 2;
+      const centerLat = (road.path[0][1] + road.path[road.path.length - 1][1]) / 2;
+
+      const labelMarker = new AMap.Marker({
+        position: [centerLng, centerLat],
+        content: `<div style="
+          background: rgba(0,0,0,.7);
+          border: 1px solid ${color};
+          border-radius: 4px;
+          padding: 2px 8px;
+          color: ${color};
+          font-size: 11px;
+          font-weight: 600;
+          white-space: nowrap;
+          box-shadow: 0 2px 6px rgba(0,0,0,.4);
+        ">${road.name} <span style="color:#fff">${road.index}</span></div>`,
+        offset: new AMap.Pixel(-30, -10),
+        map: map,
+      });
+
+      // 点击事件
+      polyline.on('click', () => {
+        if (onRoadClick) {
+          onRoadClick(road);
+        }
+        // 定位并放大
+        map.setCenter([road.lng, road.lat]);
+        map.setZoom(15);
+      });
+
+      polyline.on('mouseover', () => {
+        polyline.setOptions({ strokeWeight: 6, strokeOpacity: 1 });
+      });
+
+      polyline.on('mouseout', () => {
+        polyline.setOptions({
+          strokeWeight: isSelected ? 6 : 4,
+          strokeOpacity: isSelected ? 1 : 0.8
+        });
+      });
+
+      roadPolylinesRef.current.push(polyline);
+      roadPolylinesRef.current.push(labelMarker);
+    });
+  }, [ready, congestionRoads, selectedRoad, onRoadClick]);
+
+  // 渲染拥堵区域
+  useEffect(() => {
+    if (!ready || !mapRef.current || !AMapRef.current) return;
+
+    const AMap = AMapRef.current;
+    const map = mapRef.current;
+
+    // 清除旧的区域
+    areaPolygonsRef.current.forEach(polygon => polygon.setMap(null));
+    areaPolygonsRef.current = [];
+
+    if (congestionAreas.length === 0) return;
+
+    congestionAreas.forEach((area) => {
+      if (!area.bounds || area.bounds.length < 2) return;
+
+      const isSelected = selectedArea?.rank === area.rank;
+      const color = area.index > 4 ? '#ef4444' : area.index > 3 ? '#f59e0b' : '#22c55e';
+
+      // 从 bounds 构建矩形路径
+      const [sw, ne] = area.bounds;
+      const path = [
+        sw,
+        [ne[0], sw[1]],
+        ne,
+        [sw[0], ne[1]],
+      ];
+
+      const polygon = new AMap.Polygon({
+        path: path,
+        strokeColor: color,
+        strokeWeight: isSelected ? 3 : 2,
+        strokeOpacity: 0.8,
+        fillColor: color,
+        fillOpacity: isSelected ? 0.3 : 0.15,
+        map: map,
+        extData: area,
+      });
+
+      // 添加区域中心标记
+      const centerMarker = new AMap.Marker({
+        position: [area.lng, area.lat],
+        content: `<div style="
+          background: rgba(0,0,0,.8);
+          border: 2px solid ${color};
+          border-radius: 6px;
+          padding: 4px 12px;
+          color: #fff;
+          font-size: 12px;
+          text-align: center;
+          box-shadow: 0 2px 8px rgba(0,0,0,.5);
+        ">
+          <div style="font-weight: 600; color: ${color}; margin-bottom: 2px;">${area.name}</div>
+          <div style="font-size: 10px;">指数: ${area.index} | ${area.speed}km/h</div>
+        </div>`,
+        offset: new AMap.Pixel(-50, -25),
+        map: map,
+      });
+
+      // 点击事件
+      polygon.on('click', () => {
+        if (onAreaClick) {
+          onAreaClick(area);
+        }
+        // 定位并放大
+        map.setCenter([area.lng, area.lat]);
+        map.setZoom(14);
+      });
+
+      polygon.on('mouseover', () => {
+        polygon.setOptions({ fillOpacity: 0.3, strokeWeight: 3 });
+      });
+
+      polygon.on('mouseout', () => {
+        polygon.setOptions({
+          fillOpacity: isSelected ? 0.3 : 0.15,
+          strokeWeight: isSelected ? 3 : 2
+        });
+      });
+
+      areaPolygonsRef.current.push(polygon);
+      areaPolygonsRef.current.push(centerMarker);
+    });
+  }, [ready, congestionAreas, selectedArea, onAreaClick]);
+
+  // 选中路段时定位
+  useEffect(() => {
+    if (!ready || !mapRef.current || !selectedRoad) return;
+    mapRef.current.setCenter([selectedRoad.lng, selectedRoad.lat], true, 500);
+    mapRef.current.setZoom(15, true, 500);
+  }, [ready, selectedRoad]);
+
+  // 选中区域时定位
+  useEffect(() => {
+    if (!ready || !mapRef.current || !selectedArea) return;
+    mapRef.current.setCenter([selectedArea.lng, selectedArea.lat], true, 500);
+    mapRef.current.setZoom(14, true, 500);
+  }, [ready, selectedArea]);
 
   return (
     <div style={{

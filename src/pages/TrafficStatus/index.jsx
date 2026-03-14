@@ -302,6 +302,8 @@ export default function useTrafficStatus() {
   const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [showAllStatus, setShowAllStatus] = useState(false);
   const [showAllTypes, setShowAllTypes] = useState(false);
+  const [selectedRoad, setSelectedRoad] = useState(null);
+  const [selectedArea, setSelectedArea] = useState(null);
   const autoRotateRef = useRef(null);
 
   const isDistrictRankActive = (activeTab === '城市概况' && (vehicleInnerTab === '辖区排名' || driverInnerTab === '辖区排名' || roadInnerTab === '辖区排名' || vehicleInnerTab === '两率' || driverInnerTab === '重点驾驶人两率'));
@@ -617,26 +619,42 @@ export default function useTrafficStatus() {
   /* ── 运行概况 RIGHT ──────────────────────────────────────── */
   const operationRightPanel = (
     <>
-      <PanelCard title="拥堵路段排名">
+      <PanelCard title="拥堵路段排名" subtitle="点击📍联动地图">
         <ul className="congestion-list">
           {trafficIndex.congestionRoads.flatMap((r) => {
+            const isSelected = selectedRoad?.rank === r.rank;
             const items = [
-              <li key={r.rank} className="congestion-row" onClick={() => setExpandedRoad(expandedRoad === r.rank ? null : r.rank)}>
+              <li key={r.rank}
+                className={`congestion-row ${isSelected ? 'selected' : ''}`}
+                style={isSelected ? { background: 'rgba(0,212,255,.1)', borderLeft: '2px solid #00d4ff' } : {}}
+              >
                 <span className="rank">{r.rank}</span>
                 <span className="name">{r.name}</span>
-                <span className="index">{r.index}</span>
+                <span className="index" style={{ color: r.index > 5 ? '#ef4444' : r.index > 3 ? '#f59e0b' : '#00d4ff' }}>{r.index}</span>
                 <span className="speed">{r.speed} km/h</span>
                 {r.frequent && <span className="tag">常发</span>}
+                <span className="loc-btn" onClick={(e) => { e.stopPropagation(); handleRoadClick(r); }}>📍</span>
                 <span className="star-btn" style={{ color: watchedItems.has(`road-${r.rank}`) ? '#f59e0b' : '#64748b' }} onClick={(e) => { e.stopPropagation(); toggleWatch(`road-${r.rank}`); }}>
                   {watchedItems.has(`road-${r.rank}`) ? '★' : '☆'}
                 </span>
               </li>,
             ];
-            if (expandedRoad === r.rank) {
+            if (isSelected || expandedRoad === r.rank) {
               items.push(
                 <li key={`rd-${r.rank}`} className="expand-detail">
-                  <div>{r.name} · 拥堵指数 <strong>{r.index}</strong> · {r.speed} km/h</div>
-                  <div style={{ marginTop: 4 }}>视频 {4 + r.rank} · 警力 {Math.max(1, 5 - r.rank)} · 警情 {r.rank <= 2 ? 2 : 1}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <strong style={{ color: '#00d4ff' }}>{r.name}</strong>
+                    <button className="video-btn" onClick={() => alert(`打开 ${r.name} 视频监控`)}>
+                      📹 查看视频
+                    </button>
+                  </div>
+                  <div style={{ marginTop: 8, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, fontSize: '.78rem' }}>
+                    <div>拥堵指数: <span style={{ color: r.index > 5 ? '#ef4444' : '#f59e0b' }}>{r.index}</span></div>
+                    <div>平均速度: <span style={{ color: '#00d4ff' }}>{r.speed} km/h</span></div>
+                    <div>监控数量: <span style={{ color: '#22c55e' }}>{r.resources?.cameras || 4 + r.rank}</span></div>
+                    <div>警力配置: <span style={{ color: '#8b5cf6' }}>{r.resources?.police || Math.max(1, 5 - r.rank)}</span></div>
+                  </div>
+                  {r.detail && <div style={{ marginTop: 6, fontSize: '.75rem', color: '#94a3b8' }}>{r.detail}</div>}
                 </li>,
               );
             }
@@ -645,25 +663,44 @@ export default function useTrafficStatus() {
         </ul>
       </PanelCard>
 
-      <PanelCard title="拥堵区域">
+      <PanelCard title="拥堵区域" subtitle="点击📍联动地图">
         <ul className="congestion-list">
           {trafficIndex.congestionAreas.flatMap((a) => {
+            const isSelected = selectedArea?.rank === a.rank;
             const items = [
-              <li key={a.rank} className="congestion-row" onClick={() => setExpandedArea(expandedArea === a.rank ? null : a.rank)}>
+              <li key={a.rank}
+                className={`congestion-row ${isSelected ? 'selected' : ''}`}
+                style={isSelected ? { background: 'rgba(0,212,255,.1)', borderLeft: '2px solid #00d4ff' } : {}}
+              >
                 <span className="rank">{a.rank}</span>
                 <span className="name">{a.name}</span>
-                <span className="index">{a.index}</span>
+                <span className="index" style={{ color: a.index > 4 ? '#ef4444' : a.index > 3 ? '#f59e0b' : '#00d4ff' }}>{a.index}</span>
                 <span className="speed">{a.speed} km/h</span>
+                <span className="loc-btn" onClick={(e) => { e.stopPropagation(); handleAreaClick(a); }}>📍</span>
                 <span className="star-btn" style={{ color: watchedItems.has(`area-${a.rank}`) ? '#f59e0b' : '#64748b' }} onClick={(e) => { e.stopPropagation(); toggleWatch(`area-${a.rank}`); }}>
                   {watchedItems.has(`area-${a.rank}`) ? '★' : '☆'}
                 </span>
               </li>,
             ];
-            if (expandedArea === a.rank) {
+            if (isSelected || expandedArea === a.rank) {
+              const stats = a.stats || {};
               items.push(
                 <li key={`ad-${a.rank}`} className="expand-detail">
-                  <div>{a.name} · 拥堵指数 <strong>{a.index}</strong> · {a.speed} km/h</div>
-                  <div style={{ marginTop: 4 }}>视频 {6 + a.rank} · 警力 {Math.max(1, 4 - a.rank)} · 警情 {a.rank <= 2 ? 3 : 1}</div>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <strong style={{ color: '#00d4ff' }}>{a.name}</strong>
+                    <button className="video-btn" onClick={() => alert(`打开 ${a.name} 区域视频`)}>
+                      📹 查看视频
+                    </button>
+                  </div>
+                  <div style={{ marginTop: 8, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 6, fontSize: '.78rem' }}>
+                    <div>交通指数: <span style={{ color: '#00d4ff' }}>{a.index}</span></div>
+                    <div>平均速度: <span style={{ color: '#22c55e' }}>{a.speed} km/h</span></div>
+                    <div>拥堵占比: <span style={{ color: '#f59e0b' }}>{stats.congestionRatio || '-'}%</span></div>
+                    <div>未完结警情: <span style={{ color: stats.unfinishedAlerts > 0 ? '#ef4444' : '#22c55e' }}>{stats.unfinishedAlerts || 0}</span></div>
+                    <div>警力数量: <span style={{ color: '#8b5cf6' }}>{stats.police || 4}</span></div>
+                    <div>监控数量: <span style={{ color: '#06b6d4' }}>{stats.cameras || 12}</span></div>
+                  </div>
+                  {a.detail && <div style={{ marginTop: 6, fontSize: '.75rem', color: '#94a3b8' }}>{a.detail}</div>}
                 </li>,
               );
             }
@@ -1049,8 +1086,34 @@ export default function useTrafficStatus() {
     return null;
   };
 
+  // 判断是否显示拥堵路段/区域
+  const shouldShowCongestion = activeTab === '运行概况';
+
+  // 路段点击处理
+  const handleRoadClick = (road) => {
+    setSelectedRoad(selectedRoad?.rank === road.rank ? null : road);
+    setSelectedArea(null);
+    setSelectedDistrict(null);
+  };
+
+  // 区域点击处理
+  const handleAreaClick = (area) => {
+    setSelectedArea(selectedArea?.rank === area.rank ? null : area);
+    setSelectedRoad(null);
+    setSelectedDistrict(null);
+  };
+
   const mapContent = (
-    <AMapView districtColors={getMapDistrictColors()} districtDetail={getSelectedDistrictDetail()} />
+    <AMapView
+      districtColors={getMapDistrictColors()}
+      districtDetail={getSelectedDistrictDetail()}
+      congestionRoads={shouldShowCongestion ? trafficIndex.congestionRoads : []}
+      congestionAreas={shouldShowCongestion ? trafficIndex.congestionAreas : []}
+      selectedRoad={selectedRoad}
+      selectedArea={selectedArea}
+      onRoadClick={handleRoadClick}
+      onAreaClick={handleAreaClick}
+    />
   );
 
   return { leftPanel, rightPanel, mapContent };
