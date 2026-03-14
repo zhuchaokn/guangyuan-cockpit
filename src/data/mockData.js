@@ -130,7 +130,17 @@ export const trafficStatusData = {
   driverOwnership: {
     total: 412350,
     monthlyTrend: MONTHS.map((_, i) => ({ month: MONTHS[i], total: 400000 + i * 1000 + rand(-300, 300), registered: rand(1200, 1800), cancelled: rand(200, 400) })),
-    districtRank: DISTRICTS.map(d => ({ name: d, count: rand(35000, 95000), change: randFloat(-1, 4) })).sort((a,b) => b.count - a.count),
+    districtRank: DISTRICTS.map(d => ({
+      name: d,
+      count: rand(35000, 95000),
+      change: randFloat(-1, 4),
+      // 驾驶人详细状态
+      normal: rand(30000, 85000),
+      overdue: rand(1500, 4500),
+      cancelled: rand(600, 2000),
+      revoked: rand(200, 800),
+      withdrawn: rand(50, 200)
+    })).sort((a,b) => b.count - a.count),
     statusFunnel: [
       { name: '正常', value: 382000 }, { name: '逾期', value: 18200 },
       { name: '注销', value: 8600 }, { name: '吊销', value: 2800 }, { name: '撤销', value: 750 }

@@ -70,11 +70,11 @@ function pieOption(data) {
   return {
     backgroundColor: 'transparent',
     textStyle: { color: '#94a3b8' },
-    tooltip: { trigger: 'item' },
+    tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
     series: [{
       type: 'pie', radius: ['35%', '65%'],
       data: data.map((d, i) => ({ ...d, itemStyle: { color: PALETTE[i % PALETTE.length] } })),
-      label: { color: '#94a3b8', fontSize: 11 },
+      label: { color: '#94a3b8', fontSize: 11, formatter: '{b}\n{d}%' },
     }],
   };
 }
@@ -128,13 +128,24 @@ function gaugeOption(value, label, color) {
 }
 
 function funnelOption(data, palette = PALETTE) {
+  const total = data.reduce((sum, d) => sum + (d.value || 0), 0);
   return {
     backgroundColor: 'transparent',
     textStyle: { color: '#94a3b8' },
-    tooltip: { trigger: 'item', formatter: '{b}: {c}' },
+    tooltip: {
+      trigger: 'item',
+      formatter: (p) => `${p.name}: ${p.value?.toLocaleString()} (${((p.value / total) * 100).toFixed(1)}%)`
+    },
     series: [{
       type: 'funnel', sort: 'descending', left: '10%', right: '10%', top: 16, bottom: 8,
-      gap: 4, label: { show: true, position: 'inside', color: '#e2e8f0', fontSize: 11 },
+      gap: 4,
+      label: {
+        show: true,
+        position: 'inside',
+        color: '#e2e8f0',
+        fontSize: 11,
+        formatter: (p) => `${p.name}\n${p.value?.toLocaleString()} (${((p.value / total) * 100).toFixed(1)}%)`
+      },
       itemStyle: { borderWidth: 0 },
       data: data.map((d, i) => ({ ...d, itemStyle: { color: palette[i % palette.length] } })),
     }],
@@ -249,7 +260,7 @@ export default function useTrafficStatus() {
   const [showAllTypes, setShowAllTypes] = useState(false);
   const autoRotateRef = useRef(null);
 
-  const isDistrictRankActive = (activeTab === '城市概况' && (vehicleInnerTab === '辖区排名' || driverInnerTab === '辖区排名' || roadInnerTab === '辖区排名' || vehicleInnerTab === '两率' || driverInnerTab === '两率'));
+  const isDistrictRankActive = (activeTab === '城市概况' && (vehicleInnerTab === '辖区排名' || driverInnerTab === '辖区排名' || roadInnerTab === '辖区排名' || vehicleInnerTab === '两率' || driverInnerTab === '重点驾驶人两率'));
 
   useEffect(() => {
     if (autoRotateRef.current) clearInterval(autoRotateRef.current);
@@ -269,7 +280,7 @@ export default function useTrafficStatus() {
   } = trafficStatusData;
 
   const vehicleInnerTabs = ['趋势', '辖区排名', '状态分析', '类型分布', '使用性质', '两率'];
-  const driverInnerTabs = ['趋势', '辖区排名', '驾证状态', '年龄构成', '驾龄分布', '驾证类型', '两率'];
+  const driverInnerTabs = ['趋势', '辖区排名', '驾证状态', '年龄构成', '驾龄分布', '驾证类型', '重点驾驶人两率'];
   const roadInnerTabs = ['路网概况', '合理性对比', '辖区排名'];
 
   const toggleWatch = (key) => {
@@ -499,7 +510,7 @@ export default function useTrafficStatus() {
         <ReactECharts style={{ height: 220 }} option={pieOption(driverOwnership.licenseType)} />
       )}
 
-      {driverInnerTab === '两率' && (
+      {driverInnerTab === '重点驾驶人两率' && (
         <>
           <div className="gauge-row">
             <ReactECharts style={{ height: 150, flex: 1 }} option={gaugeOption(driverOwnership.renewRate, '换证率', PALETTE[0])} />
@@ -892,13 +903,35 @@ export default function useTrafficStatus() {
 
   const getMapDistrictColors = () => {
     if (selectedDistrict) return [{ name: selectedDistrict, color: '#00d4ff', score: '' }];
+    // 机动车辖区排名
+    if (activeTab === '城市概况' && vehicleInnerTab === '辖区排名') {
+      const sorted = [...vehicleOwnership.districtRank].sort((a, b) => b.count - a.count);
+      const max = sorted[0]?.count || 1;
+      return sorted.map((d, i) => ({
+        name: d.name,
+        color: i === 0 ? '#22c55e' : i < 3 ? '#00d4ff' : i < 5 ? '#f59e0b' : '#818cf8',
+        score: d.count.toLocaleString()
+      }));
+    }
+    // 机动车两率
     if (activeTab === '城市概况' && vehicleInnerTab === '两率') {
       return DISTRICTS_7.map(d => {
         const rate = randFloat(85, 98);
         return { name: d, color: rate > 92 ? '#22c55e' : rate > 85 ? '#f59e0b' : '#ef4444', score: rate + '%' };
       });
     }
-    if (activeTab === '城市概况' && driverInnerTab === '两率') {
+    // 驾驶人辖区排名
+    if (activeTab === '城市概况' && driverInnerTab === '辖区排名') {
+      const sorted = [...driverOwnership.districtRank].sort((a, b) => b.count - a.count);
+      const max = sorted[0]?.count || 1;
+      return sorted.map((d, i) => ({
+        name: d.name,
+        color: i === 0 ? '#22c55e' : i < 3 ? '#00d4ff' : i < 5 ? '#f59e0b' : '#818cf8',
+        score: d.count.toLocaleString()
+      }));
+    }
+    // 重点驾驶人两率
+    if (activeTab === '城市概况' && driverInnerTab === '重点驾驶人两率') {
       return DISTRICTS_7.map(d => {
         const rate = randFloat(82, 96);
         return { name: d, color: rate > 90 ? '#22c55e' : rate > 82 ? '#f59e0b' : '#ef4444', score: rate + '%' };
@@ -913,7 +946,7 @@ export default function useTrafficStatus() {
     if (activeTab === '城市概况' && (vehicleInnerTab === '辖区排名' || vehicleInnerTab === '两率')) {
       return vehicleOwnership.districtRank.find(d => d.name === selectedDistrict);
     }
-    if (activeTab === '城市概况' && (driverInnerTab === '辖区排名' || driverInnerTab === '两率')) {
+    if (activeTab === '城市概况' && (driverInnerTab === '辖区排名' || driverInnerTab === '重点驾驶人两率')) {
       return driverOwnership.districtRank.find(d => d.name === selectedDistrict);
     }
     if (activeTab === '城市概况' && roadInnerTab === '辖区排名') {
