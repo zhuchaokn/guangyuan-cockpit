@@ -106,7 +106,29 @@ function pieOption(data) {
   return {
     backgroundColor: 'transparent',
     textStyle: { color: '#94a3b8' },
-    tooltip: { trigger: 'item', formatter: '{b}: {c} ({d}%)' },
+    tooltip: {
+      trigger: 'item',
+      formatter: '{b}: {c} ({d}%)',
+      confine: true,
+      position: function (point, params, dom, rect, size) {
+        // 动态计算位置，确保tooltip不超出容器
+        const tooltipWidth = 120;
+        const tooltipHeight = 50;
+        let x = point[0] - tooltipWidth / 2;
+        let y = point[1] - tooltipHeight - 10;
+
+        // 确保不超出左边界
+        if (x < 5) x = 5;
+        // 确保不超出右边界
+        if (x + tooltipWidth > size.viewSize[0] - 5) {
+          x = size.viewSize[0] - tooltipWidth - 5;
+        }
+        // 确保不超出上边界
+        if (y < 5) y = point[1] + 15;
+
+        return [x, y];
+      }
+    },
     series: [{
       type: 'pie', radius: ['35%', '65%'],
       data: data.map((d, i) => ({ ...d, itemStyle: { color: PALETTE[i % PALETTE.length] } })),
