@@ -171,7 +171,7 @@ export default function useFourColorWarning() {
         {scoreTable}
       </PanelCard>
       <PanelCard title="车辆隐患">
-        <ReactECharts option={vehicleHazardOpt} style={{ height: 220 }} opts={{ renderer: 'canvas' }} />
+        <ReactECharts key={selectedMonth} option={vehicleHazardOpt} style={{ height: 220 }} opts={{ renderer: 'canvas' }} />
       </PanelCard>
       <PanelCard title="驾驶人隐患">
         <div style={{ display: 'flex', gap: 10, marginBottom: 12 }}>
