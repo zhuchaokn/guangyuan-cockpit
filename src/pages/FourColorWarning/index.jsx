@@ -16,6 +16,7 @@ export default function useFourColorWarning() {
     districtScores,
     roadRisk,
     vehicleHazardItems,
+    vehicleHazardMonthly,
     accidents,
     driverHazardItems,
     accidentCauses,
@@ -81,16 +82,21 @@ export default function useFourColorWarning() {
     </div>
   );
 
-  // 2. 车辆隐患 - Grouped bar chart
+  // 2. 车辆隐患 - Grouped bar chart (根据月份切换数据)
+  const currentVehicleData = vehicleHazardMonthly?.[selectedMonth]?.items || vehicleHazardItems;
   const vehicleHazardOpt = {
     ...chartBase,
     legend: { data: ['总数', '新增', '已整改'], textStyle: { color: '#94a3b8' }, top: 0 },
-    xAxis: { type: 'category', data: vehicleHazardItems.map((d) => d.name), axisLabel: { color: '#94a3b8', rotate: 25 } },
+    tooltip: {
+      trigger: 'axis',
+      axisPointer: { type: 'shadow' }
+    },
+    xAxis: { type: 'category', data: currentVehicleData.map((d) => d.name), axisLabel: { color: '#94a3b8', rotate: 25, fontSize: 10 } },
     yAxis: { type: 'value', axisLine: { show: false }, splitLine: { lineStyle: { color: 'rgba(148,163,184,.1)' } } },
     series: [
-      { name: '总数', type: 'bar', data: vehicleHazardItems.map((d) => d.total), itemStyle: { color: '#00d4ff' }, barGap: 0 },
-      { name: '新增', type: 'bar', data: vehicleHazardItems.map((d) => d.added), itemStyle: { color: '#f59e0b' }, barGap: 0 },
-      { name: '已整改', type: 'bar', data: vehicleHazardItems.map((d) => d.resolved), itemStyle: { color: '#22c55e' }, barGap: 0 },
+      { name: '总数', type: 'bar', data: currentVehicleData.map((d) => d.total), itemStyle: { color: '#00d4ff' }, barGap: 0, barWidth: 12 },
+      { name: '新增', type: 'bar', data: currentVehicleData.map((d) => d.added), itemStyle: { color: '#f59e0b' }, barGap: 0, barWidth: 12 },
+      { name: '已整改', type: 'bar', data: currentVehicleData.map((d) => d.resolved), itemStyle: { color: '#22c55e' }, barGap: 0, barWidth: 12 },
     ],
   };
 
@@ -130,16 +136,18 @@ export default function useFourColorWarning() {
   };
 
   // 6. 事故原因分析 - Nightingale/Rose chart
+  const causeColors = ['#ef4444', '#f59e0b', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#64748b'];
   const causeOpt = {
     ...chartBase,
+    tooltip: { trigger: 'item', formatter: '{b}: {c}%' },
     series: [{
       type: 'pie', radius: [20, 100], center: ['50%', '50%'], roseType: 'area',
       data: accidentCauses.map((c, i) => ({
         value: c.value,
         name: c.name,
-        itemStyle: { color: ['#ef4444', '#f59e0b', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#64748b'][i % 7] },
+        itemStyle: { color: causeColors[i % causeColors.length] },
       })),
-      label: { color: '#94a3b8', fontSize: 10 },
+      label: { color: '#94a3b8', fontSize: 10, formatter: '{b}\n{c}%' },
     }],
   };
 

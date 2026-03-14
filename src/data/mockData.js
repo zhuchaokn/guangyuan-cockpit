@@ -377,6 +377,18 @@ export const fourColorWarningData = {
     { name: '逾期未报废', total: 425, added: 45, resolved: 52 },
     { name: '其他隐患', total: 114, added: 18, resolved: 12 }
   ],
+  // 车辆隐患按月数据
+  vehicleHazardMonthly: MONTHS.map((_, monthIdx) => ({
+    month: MONTHS[monthIdx],
+    items: [
+      { name: '逾期未检', total: rand(850, 1100), added: rand(100, 150), resolved: rand(70, 120) },
+      { name: '未报废', total: rand(550, 750), added: rand(40, 80), resolved: rand(60, 100) },
+      { name: '违法未处理', total: rand(450, 650), added: rand(80, 120), resolved: rand(50, 90) },
+      { name: '多次违法', total: rand(150, 250), added: rand(25, 50), resolved: rand(20, 40) },
+      { name: '逾期未报废', total: rand(350, 500), added: rand(30, 60), resolved: rand(40, 70) },
+      { name: '其他隐患', total: rand(80, 150), added: rand(10, 30), resolved: rand(8, 20) }
+    ]
+  })),
   accidents: {
     monthly: MONTHS.map((m, i) => ({ month: m, injury: rand(8, 35), property: rand(45, 120) }))
   },
@@ -389,7 +401,7 @@ export const fourColorWarningData = {
     { name: '未保持安全距离', value: 28 }, { name: '违规变道', value: 18 },
     { name: '超速行驶', value: 16 }, { name: '违反信号灯', value: 12 },
     { name: '疲劳驾驶', value: 10 }, { name: '酒后驾驶', value: 8 },
-    { name: '其他', value: 8 }
+    { name: '无证驾驶', value: 6 }, { name: '其他', value: 8 }
   ],
   accidentHeatmap: Array.from({length: 50}, (_, i) => {
     const distName = DISTRICTS[i % 7];
