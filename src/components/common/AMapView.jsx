@@ -130,21 +130,18 @@ export default function AMapView({
 
       const guangyuan = districtList[0];
 
-      // 绘制广元市整体边界
+      // 绘制广元市整体边界（每个独立边界单独创建 Polygon）
       if (guangyuan.boundaries && guangyuan.boundaries.length > 0) {
-        const outerPath = [];
-        guangyuan.boundaries.forEach(boundary => {
-          outerPath.push(...boundary);
-        });
-
-        new AMap.Polygon({
-          path: outerPath,
-          strokeColor: '#00d4ff',
-          strokeWeight: 2,
-          strokeOpacity: 0.8,
-          fillColor: 'transparent',
-          fillOpacity: 0,
-          map: map,
+        guangyuan.boundaries.forEach((boundary) => {
+          new AMap.Polygon({
+            path: boundary,
+            strokeColor: '#00d4ff',
+            strokeWeight: 2,
+            strokeOpacity: 0.8,
+            fillColor: 'transparent',
+            fillOpacity: 0,
+            map: map,
+          });
         });
       }
 
