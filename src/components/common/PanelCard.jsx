@@ -1,10 +1,13 @@
-export default function PanelCard({ title, extra, children, className = '', noPad }) {
+export default function PanelCard({ title, subtitle, extra, children, className = '', noPad }) {
   return (
     <div className={`panel-card ${className}`}>
       {title && (
         <div className="panel-card__header">
           <div className="panel-card__deco" />
-          <h3 className="panel-card__title">{title}</h3>
+          <div style={{ flex: 1 }}>
+            <h3 className="panel-card__title">{title}</h3>
+            {subtitle && <div className="panel-card__subtitle">{subtitle}</div>}
+          </div>
           {extra && <div className="panel-card__extra">{extra}</div>}
         </div>
       )}
@@ -37,9 +40,12 @@ export default function PanelCard({ title, extra, children, className = '', noPa
           box-shadow: 0 0 6px rgba(0,212,255,.4);
         }
         .panel-card__title {
-          flex: 1;
           font-size: .88rem; font-weight: 600;
           color: var(--text-primary);
+        }
+        .panel-card__subtitle {
+          font-size: .72rem; color: var(--text-dim);
+          margin-top: 2px;
         }
         .panel-card__extra {
           font-size: .75rem; color: var(--text-dim);

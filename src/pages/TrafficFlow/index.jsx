@@ -3,12 +3,25 @@ import ReactECharts from 'echarts-for-react';
 import PanelCard from '../../components/common/PanelCard';
 import DataCard from '../../components/common/DataCard';
 import MapView from '../../components/common/MapView';
-import { trafficFlowData } from '../../data/mockData';
+import { trafficFlowData, MONTHS } from '../../data/mockData';
 
 const CHART_COLORS = { current: '#00d4ff', lastYear: '#64748b' };
 
+// 获取近30天日期范围
+function getLast30DaysRange() {
+  const end = new Date();
+  const start = new Date();
+  start.setDate(start.getDate() - 29);
+  const fmt = (d) => `${d.getMonth() + 1}/${d.getDate()}`;
+  return `${fmt(start)} - ${fmt(end)}`;
+}
+
 export default function useTrafficFlow() {
   const { monthlyFlow, yearTotal, monthAvg, topIntersections } = trafficFlowData;
+  const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
+
+  // 根据选中月份过滤数据
+  const filteredMonthlyFlow = monthlyFlow.slice(0, selectedMonth + 1);
 
   const flowChartOption = {
     backgroundColor: 'transparent',
@@ -16,7 +29,7 @@ export default function useTrafficFlow() {
     grid: { left: 48, right: 24, top: 24, bottom: 36 },
     xAxis: {
       type: 'category',
-      data: monthlyFlow.map((m) => m.month),
+      data: filteredMonthlyFlow.map((m) => m.month),
       axisLine: { lineStyle: { color: 'rgba(148,163,184,.2)' } },
       axisLabel: { color: '#94a3b8', fontSize: 11 },
     },
@@ -33,8 +46,8 @@ export default function useTrafficFlow() {
       formatter: (params) => {
         const p = params[0];
         const idx = p.dataIndex;
-        const curr = monthlyFlow[idx].flow;
-        const last = monthlyFlow[idx].lastYear;
+        const curr = filteredMonthlyFlow[idx].flow;
+        const last = filteredMonthlyFlow[idx].lastYear;
         return `${p.name}<br/>本年: ${curr.toLocaleString()}<br/>去年: ${last.toLocaleString()}`;
       },
     },
@@ -42,7 +55,7 @@ export default function useTrafficFlow() {
       {
         name: '本年',
         type: 'line',
-        data: monthlyFlow.map((m) => m.flow),
+        data: filteredMonthlyFlow.map((m) => m.flow),
         smooth: true,
         symbol: 'circle',
         symbolSize: 6,
@@ -64,7 +77,7 @@ export default function useTrafficFlow() {
       {
         name: '去年',
         type: 'line',
-        data: monthlyFlow.map((m) => m.lastYear),
+        data: filteredMonthlyFlow.map((m) => m.lastYear),
         smooth: true,
         symbol: 'none',
         lineStyle: { color: CHART_COLORS.lastYear, width: 1.5, type: 'dashed' },
@@ -78,15 +91,35 @@ export default function useTrafficFlow() {
         <DataCard title="年度总流量" value={yearTotal} color="var(--accent)" />
         <DataCard title="月均流量" value={monthAvg} color="var(--accent)" />
       </div>
-      <PanelCard title="车流量变化趋势">
-        <ReactECharts option={flowChartOption} style={{ height: 220 }} opts={{ renderer: 'canvas' }} />
+      <PanelCard
+        title="车流量变化趋势"
+        extra={
+          <select
+            value={selectedMonth}
+            onChange={(e) => setSelectedMonth(Number(e.target.value))}
+            style={{
+              background: 'rgba(255,255,255,.05)',
+              border: '1px solid rgba(255,255,255,.1)',
+              color: '#00d4ff',
+              borderRadius: 4,
+              padding: '4px 8px',
+              fontSize: '.75rem',
+            }}
+          >
+            {MONTHS.map((m, i) => (
+              <option key={i} value={i}>{m}</option>
+            ))}
+          </select>
+        }
+      >
+        <ReactECharts key={selectedMonth} option={flowChartOption} style={{ height: 220 }} opts={{ renderer: 'canvas' }} />
       </PanelCard>
     </>
   );
 
   const rightPanel = (
     <>
-      <PanelCard title="路口流量排行">
+      <PanelCard title="路口流量排行" subtitle={`近30天 (${getLast30DaysRange()})`}>
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
           {topIntersections.map((item) => {
             const badgeColor =

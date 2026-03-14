@@ -5,8 +5,18 @@ import DataCard from '../../components/common/DataCard';
 import MapView from '../../components/common/MapView';
 import { vehicleDataMgmt } from '../../data/mockData';
 
+// 获取近30天日期范围
+function getLast30DaysRange() {
+  const end = new Date();
+  const start = new Date();
+  start.setDate(start.getDate() - 29);
+  const fmt = (d) => `${d.getMonth() + 1}/${d.getDate()}`;
+  return `${fmt(start)} - ${fmt(end)}`;
+}
+
 export default function useVehicleData() {
   const { localVehicles, foreignVehicles, provinceRank, typeDistribution } = vehicleDataMgmt;
+  const dateRange = getLast30DaysRange();
 
   const donutOption = {
     backgroundColor: 'transparent',
@@ -70,7 +80,7 @@ export default function useVehicleData() {
 
   const leftPanel = (
     <>
-      <PanelCard title="车辆归属地">
+      <PanelCard title="车辆归属地统计" subtitle={`近30天 (${dateRange})`}>
         <div style={{ display: 'flex', gap: 12, marginBottom: 16 }}>
           <DataCard
             title="本地车"
@@ -136,7 +146,7 @@ export default function useVehicleData() {
 
   const rightPanel = (
     <>
-      <PanelCard title="车辆类型统计">
+      <PanelCard title="车辆类型统计" subtitle={`近30天 (${dateRange})`}>
         <div style={{ height: 200, marginBottom: 16 }}>
           <ReactECharts option={pieOption} style={{ height: '100%' }} opts={{ renderer: 'canvas' }} />
         </div>
