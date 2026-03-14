@@ -141,7 +141,7 @@ function funnelOption(data, palette = PALETTE) {
   };
 }
 
-function DistrictRatesList({ districts, label1, label2 }) {
+function DistrictRatesList({ districts, label1, label2, onDistrictClick, selectedDistrict }) {
   return (
     <ul className="rank-list" style={{ marginTop: 8 }}>
       {districts.map((d, i) => (
@@ -150,6 +150,7 @@ function DistrictRatesList({ districts, label1, label2 }) {
           <span className="name">{d}</span>
           <span className="count">{randFloat(85, 96)}%</span>
           <span className="count" style={{ marginLeft: 8 }}>{randFloat(88, 99)}%</span>
+          <span className="district-pin" onClick={() => onDistrictClick && onDistrictClick(selectedDistrict === d ? null : d)}>📍</span>
         </li>
       ))}
       <li style={{ color: '#64748b', fontSize: '.7rem', borderBottom: 'none', paddingTop: 4 }}>
@@ -246,7 +247,7 @@ export default function useTrafficStatus() {
   const [selectedDistrict, setSelectedDistrict] = useState(null);
   const autoRotateRef = useRef(null);
 
-  const isDistrictRankActive = (activeTab === '城市概况' && (vehicleInnerTab === '辖区排名' || driverInnerTab === '辖区排名' || roadInnerTab === '辖区排名'));
+  const isDistrictRankActive = (activeTab === '城市概况' && (vehicleInnerTab === '辖区排名' || driverInnerTab === '辖区排名' || roadInnerTab === '辖区排名' || vehicleInnerTab === '两率' || driverInnerTab === '两率'));
 
   useEffect(() => {
     if (autoRotateRef.current) clearInterval(autoRotateRef.current);
@@ -349,7 +350,7 @@ export default function useTrafficStatus() {
             <div className="rate-abs-line">
               未检验 {Math.round(vehicleOwnership.total * (1 - vehicleOwnership.inspectionRate / 100))} 辆 · 未报废 {Math.round(vehicleOwnership.total * (1 - vehicleOwnership.scrapRate / 100))} 辆
             </div>
-            <DistrictRatesList districts={DISTRICTS_7} label1="检验率" label2="报废率" />
+            <DistrictRatesList districts={DISTRICTS_7} label1="检验率" label2="报废率" onDistrictClick={setSelectedDistrict} selectedDistrict={selectedDistrict} />
           </>
         )}
       </PanelCard>
@@ -481,7 +482,7 @@ export default function useTrafficStatus() {
           <div className="rate-abs-line">
             逾期未换证 {Math.round(driverOwnership.total * (1 - driverOwnership.renewRate / 100))} 人 · 逾期未审验 {Math.round(driverOwnership.total * (1 - driverOwnership.auditRate / 100))} 人
           </div>
-          <DistrictRatesList districts={DISTRICTS_7} label1="换证率" label2="审验率" />
+          <DistrictRatesList districts={DISTRICTS_7} label1="换证率" label2="审验率" onDistrictClick={setSelectedDistrict} selectedDistrict={selectedDistrict} />
         </>
       )}
     </PanelCard>
