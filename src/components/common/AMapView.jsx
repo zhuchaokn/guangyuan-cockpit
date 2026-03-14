@@ -80,9 +80,10 @@ export default function AMapView({
         zoom: zoom,
         center: GY_CENTER,
         mapStyle: 'amap://styles/dark', // 深色主题
-        features: ['bg', 'road', 'building'],
-        showLabel: true,
+        features: ['bg', 'road'], // 只显示背景和道路，不显示建筑物和POI
+        showLabel: false, // 不显示默认标签
         resizeEnable: true,
+        showIndoorMap: false, // 不显示室内地图
       });
 
       // 添加缩放控件
