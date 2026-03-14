@@ -589,13 +589,20 @@ export default function useTrafficStatus() {
         )} />
       </PanelCard>
 
-      <PanelCard title="大队排名">
+      <PanelCard title="大队排名" subtitle="点击📍联动地图显示交通指数">
+        <div className="rank-list-header" style={{ display: 'flex', fontSize: '.72rem', color: '#64748b', padding: '6px 0', borderBottom: '1px solid rgba(255,255,255,.06)', marginBottom: 4 }}>
+          <span style={{ width: 28 }}>排名</span>
+          <span style={{ flex: 1 }}>大队名称</span>
+          <span style={{ width: 60, textAlign: 'right' }}>交通指数</span>
+          <span style={{ width: 56, textAlign: 'right' }}>周同比</span>
+          <span style={{ width: 24 }}></span>
+        </div>
         <ul className="rank-list">
           {trafficIndex.squadRank.map((s, i) => (
             <li key={s.name}>
               <span className="rank">{i + 1}</span>
               <span className="name">{s.name}</span>
-              <span className="count" style={{ color: '#00d4ff' }}>{s.index}</span>
+              <span className="count" style={{ color: s.index > 4 ? '#ef4444' : s.index > 2 ? '#f59e0b' : '#00d4ff' }}>{s.index}</span>
               <span className={`change ${s.change >= 0 ? 'up' : 'down'}`}>
                 {s.change >= 0 ? '+' : ''}{s.change}%
               </span>
@@ -718,10 +725,30 @@ export default function useTrafficStatus() {
 
       <div className="pie-row" style={{ flexDirection: 'row' }}>
         <PanelCard title="归属地分布">
-          <ReactECharts style={{ height: 160 }} option={pieOption(activeVehicles.origin)} />
+          <ReactECharts style={{ height: 140 }} option={{
+            ...pieOption(activeVehicles.origin),
+            series: [{ ...pieOption(activeVehicles.origin).series[0], radius: ['40%', '60%'], center: ['50%', '50%'] }],
+          }} />
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8, fontSize: '.72rem' }}>
+            {activeVehicles.origin.map((o, i) => (
+              <span key={o.name} style={{ color: ['#22c55e', '#f59e0b', '#8b5cf6'][i] }}>
+                {o.name}: {o.value}%
+              </span>
+            ))}
+          </div>
         </PanelCard>
         <PanelCard title="号牌类型">
-          <ReactECharts style={{ height: 160 }} option={pieOption(activeVehicles.plateType)} />
+          <ReactECharts style={{ height: 140 }} option={{
+            ...pieOption(activeVehicles.plateType),
+            series: [{ ...pieOption(activeVehicles.plateType).series[0], radius: ['40%', '60%'], center: ['50%', '50%'] }],
+          }} />
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 16, marginTop: 8, fontSize: '.72rem' }}>
+            {activeVehicles.plateType.map((p, i) => (
+              <span key={p.name} style={{ color: ['#00d4ff', '#f59e0b', '#64748b'][i] }}>
+                {p.name}: {p.value}%
+              </span>
+            ))}
+          </div>
         </PanelCard>
       </div>
 
@@ -962,6 +989,14 @@ export default function useTrafficStatus() {
 
   const getMapDistrictColors = () => {
     if (selectedDistrict) return [{ name: selectedDistrict, color: '#00d4ff', score: '' }];
+    // 运行概况 - 大队排名交通指数
+    if (activeTab === '运行概况') {
+      return trafficIndex.squadRank.map(s => ({
+        name: SQUAD_TO_DISTRICT[s.name] || s.name,
+        color: s.index > 4 ? '#ef4444' : s.index > 2 ? '#f59e0b' : '#22c55e',
+        score: `指数 ${s.index}`
+      }));
+    }
     // 机动车辖区排名
     if (activeTab === '城市概况' && vehicleInnerTab === '辖区排名') {
       const sorted = [...vehicleOwnership.districtRank].sort((a, b) => b.count - a.count);

@@ -202,7 +202,7 @@ export const trafficStatusData = {
     ]
   },
   activeVehicles: {
-    today: 86432, change: 8.3,
+    today: 86432, change: 12.5,
     hourly: HOURS.map((_, i) => ({ hour: HOURS[i], today: i < 6 ? rand(2000, 8000) : i < 9 ? rand(35000, 65000) : i < 17 ? rand(50000, 80000) : i < 21 ? rand(40000, 70000) : rand(5000, 20000), lastWeek: i < 6 ? rand(1800, 7500) : i < 9 ? rand(33000, 60000) : i < 17 ? rand(48000, 78000) : i < 21 ? rand(38000, 68000) : rand(4500, 18000), lastMonth: i < 6 ? rand(1500, 7000) : i < 9 ? rand(30000, 58000) : i < 17 ? rand(45000, 75000) : i < 21 ? rand(36000, 65000) : rand(4000, 16000) })),
     origin: [{ name: '本市', value: 65 }, { name: '本省外市', value: 22 }, { name: '外省', value: 13 }],
     plateType: [{ name: '小型车', value: 78 }, { name: '大型车', value: 15 }, { name: '其他', value: 7 }],
