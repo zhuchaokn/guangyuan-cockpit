@@ -235,11 +235,11 @@ export const trafficStatusData = {
     hourly: HOURS.map((_, i) => ({ hour: HOURS[i], today: i < 6 ? rand(500, 2000) : i < 9 ? rand(8000, 15000) : i < 17 ? rand(12000, 22000) : i < 21 ? rand(8000, 16000) : rand(1000, 4000), lastWeek: i < 6 ? rand(400, 1800) : i < 9 ? rand(7000, 14000) : i < 17 ? rand(11000, 20000) : i < 21 ? rand(7000, 15000) : rand(800, 3500), lastMonth: i < 6 ? rand(350, 1600) : i < 9 ? rand(6500, 13000) : i < 17 ? rand(10000, 19000) : i < 21 ? rand(6500, 14000) : rand(600, 3000) })),
     origin: [{ name: '本市', value: 45 }, { name: '本省外市', value: 35 }, { name: '外省', value: 20 }],
     topCheckpoints: [
-      { rank: 1, name: '广陕高速入口', flow5min: 128, dayTotal: 8920, change: 5.2, ratio: 19.7 },
-      { rank: 2, name: '广巴高速入口', flow5min: 96, dayTotal: 7230, change: -2.1, ratio: 16.0 },
-      { rank: 3, name: '108国道北入口', flow5min: 85, dayTotal: 6450, change: 3.8, ratio: 14.3 },
-      { rank: 4, name: '212国道南入口', flow5min: 72, dayTotal: 5680, change: 1.5, ratio: 12.6 },
-      { rank: 5, name: '绵广高速入口', flow5min: 68, dayTotal: 5120, change: -0.8, ratio: 11.3 }
+      { rank: 1, name: '广陕高速入口', flow5min: 128, dayTotal: 8920, change: 5.2, changeDay: 2.8, ratio: 19.7, inbound: 5320, outbound: 3600 },
+      { rank: 2, name: '广巴高速入口', flow5min: 96, dayTotal: 7230, change: -2.1, changeDay: 1.5, ratio: 16.0, inbound: 4210, outbound: 3020 },
+      { rank: 3, name: '108国道北入口', flow5min: 85, dayTotal: 6450, change: 3.8, changeDay: -1.2, ratio: 14.3, inbound: 3850, outbound: 2600 },
+      { rank: 4, name: '212国道南入口', flow5min: 72, dayTotal: 5680, change: 1.5, changeDay: 3.5, ratio: 12.6, inbound: 3400, outbound: 2280 },
+      { rank: 5, name: '绵广高速入口', flow5min: 68, dayTotal: 5120, change: -0.8, changeDay: 0.5, ratio: 11.3, inbound: 2980, outbound: 2140 }
     ]
   },
   outboundVehicles: {
@@ -247,11 +247,11 @@ export const trafficStatusData = {
     hourly: HOURS.map((_, i) => ({ hour: HOURS[i], today: i < 6 ? rand(400, 1800) : i < 9 ? rand(6000, 12000) : i < 17 ? rand(10000, 20000) : i < 21 ? rand(9000, 18000) : rand(800, 3500), lastWeek: i < 6 ? rand(350, 1600) : i < 9 ? rand(5500, 11000) : i < 17 ? rand(9000, 18000) : i < 21 ? rand(8000, 16000) : rand(700, 3200), lastMonth: i < 6 ? rand(300, 1500) : i < 9 ? rand(5000, 10000) : i < 17 ? rand(8500, 17000) : i < 21 ? rand(7500, 15000) : rand(600, 2800) })),
     origin: [{ name: '本市', value: 48 }, { name: '本省外市', value: 32 }, { name: '外省', value: 20 }],
     topCheckpoints: [
-      { rank: 1, name: '广陕高速出口', flow5min: 118, dayTotal: 8320, change: 3.8, ratio: 19.4 },
-      { rank: 2, name: '广巴高速出口', flow5min: 92, dayTotal: 6980, change: -1.5, ratio: 16.3 },
-      { rank: 3, name: '108国道南出口', flow5min: 78, dayTotal: 5860, change: 2.2, ratio: 13.7 },
-      { rank: 4, name: '212国道北出口', flow5min: 65, dayTotal: 5240, change: 0.6, ratio: 12.2 },
-      { rank: 5, name: '绵广高速出口', flow5min: 62, dayTotal: 4890, change: -2.3, ratio: 11.4 }
+      { rank: 1, name: '广陕高速出口', flow5min: 118, dayTotal: 8320, change: 3.8, changeDay: 1.6, ratio: 19.4, inbound: 4890, outbound: 3430 },
+      { rank: 2, name: '广巴高速出口', flow5min: 92, dayTotal: 6980, change: -1.5, changeDay: -0.8, ratio: 16.3, inbound: 4120, outbound: 2860 },
+      { rank: 3, name: '108国道南出口', flow5min: 78, dayTotal: 5860, change: 2.2, changeDay: 2.1, ratio: 13.7, inbound: 3520, outbound: 2340 },
+      { rank: 4, name: '212国道北出口', flow5min: 65, dayTotal: 5240, change: 0.6, changeDay: -1.5, ratio: 12.2, inbound: 3100, outbound: 2140 },
+      { rank: 5, name: '绵广高速出口', flow5min: 62, dayTotal: 4890, change: -2.3, changeDay: 0.9, ratio: 11.4, inbound: 2850, outbound: 2040 }
     ]
   }
 };

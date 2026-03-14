@@ -171,7 +171,7 @@ function DistrictRatesList({ districts, label1, label2, onDistrictClick, selecte
   );
 }
 
-function CheckpointBlock({ title, data, expanded, setExpanded, compareValue, onCompareChange }) {
+function CheckpointBlock({ title, data, expanded, setExpanded, compareValue, onCompareChange, yoyType, onYoyChange }) {
   return (
     <PanelCard title={title}>
       <AnomalyWrap change={data.change}>
@@ -209,25 +209,67 @@ function CheckpointBlock({ title, data, expanded, setExpanded, compareValue, onC
 
       <div className="checkpoint-table" style={{ marginTop: 8 }}>
         <div className="table-header">
-          <span>排名</span><span>卡口</span><span>5分钟</span><span>日累计</span><span>同比</span><span>分担率</span>
+          <span>排名</span>
+          <span>卡口</span>
+          <span>5分钟</span>
+          <span>日累计</span>
+          <span>
+            <select
+              value={yoyType || 'week'}
+              onChange={(e) => onYoyChange && onYoyChange(e.target.value)}
+              style={{
+                background: 'transparent',
+                border: 'none',
+                color: '#64748b',
+                fontSize: '.72rem',
+                cursor: 'pointer',
+                outline: 'none',
+              }}
+            >
+              <option value="day">日同比</option>
+              <option value="week">周同比</option>
+            </select>
+          </span>
+          <span>分担率</span>
         </div>
         {data.topCheckpoints.flatMap((c) => {
+          const changeValue = yoyType === 'day' ? c.changeDay : c.change;
           const items = [
             <div key={c.rank} className="table-row cp-clickable" onClick={() => setExpanded(expanded === c.rank ? null : c.rank)}>
               <span>{c.rank}</span>
               <span>{c.name}</span>
               <span>{c.flow5min}</span>
               <span>{c.dayTotal.toLocaleString()}</span>
-              <span className={c.change >= 0 ? 'up' : 'down'}>{c.change >= 0 ? '+' : ''}{c.change}%</span>
+              <span className={changeValue >= 0 ? 'up' : 'down'}>{changeValue >= 0 ? '+' : ''}{changeValue}%</span>
               <span>{c.ratio}%</span>
             </div>,
           ];
           if (expanded === c.rank) {
             items.push(
               <div key={`cpd-${c.rank}`} className="cp-expand-detail">
-                <div><strong>{c.name}</strong></div>
-                <div style={{ marginTop: 4 }}>日累计: {c.dayTotal.toLocaleString()} 辆 · 设备状态: <span style={{ color: '#22c55e' }}>在线</span></div>
-                <div className="sparkline-placeholder" style={{ marginTop: 4 }}>▁▂▃▅▆▇▅▃▂▁</div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <strong>{c.name}</strong>
+                  <button
+                    className="video-btn"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      alert(`打开 ${c.name} 视频监控`);
+                    }}
+                  >
+                    📹 查看视频监控
+                  </button>
+                </div>
+                <div style={{ marginTop: 8, display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+                  <div style={{ fontSize: '.78rem', color: '#94a3b8' }}>进城数: <span style={{ color: '#22c55e' }}>{c.inbound?.toLocaleString() || rand(2000, 5000)}</span></div>
+                  <div style={{ fontSize: '.78rem', color: '#94a3b8' }}>出城数: <span style={{ color: '#f59e0b' }}>{c.outbound?.toLocaleString() || rand(1500, 4000)}</span></div>
+                </div>
+                <div style={{ marginTop: 6, fontSize: '.78rem', color: '#94a3b8' }}>
+                  设备状态: <span style={{ color: '#22c55e' }}>在线</span>
+                </div>
+                <div style={{ marginTop: 8 }}>
+                  <div style={{ fontSize: '.72rem', color: '#64748b', marginBottom: 4 }}>今日流量趋势</div>
+                  <div className="sparkline-placeholder">▁▂▃▅▆▇▅▃▂▁</div>
+                </div>
               </div>,
             );
           }
@@ -255,6 +297,8 @@ export default function useTrafficStatus() {
   const [expandedArea, setExpandedArea] = useState(null);
   const [expandedCpIn, setExpandedCpIn] = useState(null);
   const [expandedCpOut, setExpandedCpOut] = useState(null);
+  const [inboundYoyType, setInboundYoyType] = useState('week');
+  const [outboundYoyType, setOutboundYoyType] = useState('week');
   const [selectedDistrict, setSelectedDistrict] = useState(null);
   const [showAllStatus, setShowAllStatus] = useState(false);
   const [showAllTypes, setShowAllTypes] = useState(false);
@@ -739,10 +783,10 @@ export default function useTrafficStatus() {
 
   /* ── 进出交通压力 LEFT (进城) / RIGHT (出城) ─────────────── */
   const ioLeftPanel = (
-    <CheckpointBlock title="进城车辆" data={inboundVehicles} expanded={expandedCpIn} setExpanded={setExpandedCpIn} compareValue={inboundCompare} onCompareChange={setInboundCompare} />
+    <CheckpointBlock title="进城车辆" data={inboundVehicles} expanded={expandedCpIn} setExpanded={setExpandedCpIn} compareValue={inboundCompare} onCompareChange={setInboundCompare} yoyType={inboundYoyType} onYoyChange={setInboundYoyType} />
   );
   const ioRightPanel = (
-    <CheckpointBlock title="出城车辆" data={outboundVehicles} expanded={expandedCpOut} setExpanded={setExpandedCpOut} compareValue={outboundCompare} onCompareChange={setOutboundCompare} />
+    <CheckpointBlock title="出城车辆" data={outboundVehicles} expanded={expandedCpOut} setExpanded={setExpandedCpOut} compareValue={outboundCompare} onCompareChange={setOutboundCompare} yoyType={outboundYoyType} onYoyChange={setOutboundYoyType} />
   );
 
   /* ── Assemble ─────────────────────────────────────────────── */
@@ -859,6 +903,21 @@ export default function useTrafficStatus() {
         .sparkline-placeholder {
           font-family: monospace; font-size: .7rem; color: #00d4ff;
           letter-spacing: 1px; opacity: .7;
+        }
+
+        .video-btn {
+          padding: 4px 10px;
+          background: rgba(239,68,68,.15);
+          border: 1px solid rgba(239,68,68,.3);
+          border-radius: 4px;
+          color: #ef4444;
+          font-size: .72rem;
+          cursor: pointer;
+          transition: all .2s;
+        }
+        .video-btn:hover {
+          background: rgba(239,68,68,.25);
+          border-color: rgba(239,68,68,.5);
         }
 
         .anomaly-pulse { animation: anomalyPulse 1.5s ease-in-out infinite; border-radius: 8px; }
