@@ -20,6 +20,7 @@ export default function useFourColorWarning() {
     accidents,
     driverHazardItems,
     accidentCauses,
+    accidentCausesMonthly,
     accidentHeatmap,
   } = fourColorWarningData;
 
