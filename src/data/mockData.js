@@ -467,12 +467,24 @@ export const fourColorWarningData = {
     { name: '逾期未审验', total: 318, a: 38, b: 96 },
     { name: '满分未学习', total: 186, a: 22, b: 54 }
   ],
-  accidentCauses: [
-    { name: '未保持安全距离', value: 28 }, { name: '违规变道', value: 18 },
-    { name: '超速行驶', value: 16 }, { name: '违反信号灯', value: 12 },
-    { name: '疲劳驾驶', value: 10 }, { name: '酒后驾驶', value: 8 },
-    { name: '无证驾驶', value: 6 }, { name: '其他', value: 8 }
-  ],
+  // 事故原因按月份数据（1-12月）
+  accidentCausesMonthly: MONTHS.map((month, idx) => ({
+    month,
+    causes: [
+      { name: '未保持安全距离', value: rand(20, 35) },
+      { name: '违规变道', value: rand(12, 25) },
+      { name: '超速行驶', value: rand(10, 22) },
+      { name: '违反信号灯', value: rand(8, 18) },
+      { name: '疲劳驾驶', value: rand(6, 15) },
+      { name: '酒后驾驶', value: rand(4, 12) },
+      { name: '无证驾驶', value: rand(3, 10) },
+      { name: '其他', value: rand(5, 12) }
+    ]
+  })),
+  // 兼容旧版：默认取第一个月数据
+  get accidentCauses() {
+    return this.accidentCausesMonthly[0]?.causes || [];
+  },
   accidentHeatmap: Array.from({length: 50}, (_, i) => {
     const distName = DISTRICTS[i % 7];
     const pos = randInDistrict(distName);

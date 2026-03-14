@@ -135,14 +135,15 @@ export default function useFourColorWarning() {
     ],
   };
 
-  // 6. 事故原因分析 - Nightingale/Rose chart
+  // 6. 事故原因分析 - Nightingale/Rose chart（按月份切换）
   const causeColors = ['#ef4444', '#f59e0b', '#eab308', '#22c55e', '#3b82f6', '#8b5cf6', '#ec4899', '#64748b'];
+  const monthlyCauses = fourColorWarningData.accidentCausesMonthly?.[selectedMonth]?.causes || accidentCauses;
   const causeOpt = {
     ...chartBase,
     tooltip: { trigger: 'item', formatter: '{b}: {c}%' },
     series: [{
       type: 'pie', radius: [20, 100], center: ['50%', '50%'], roseType: 'area',
-      data: accidentCauses.map((c, i) => ({
+      data: monthlyCauses.map((c, i) => ({
         value: c.value,
         name: c.name,
         itemStyle: { color: causeColors[i % causeColors.length] },
@@ -193,7 +194,7 @@ export default function useFourColorWarning() {
         <ReactECharts option={accidentTrendOpt} style={{ height: 200 }} opts={{ renderer: 'canvas' }} />
       </PanelCard>
       <PanelCard title="事故原因分析">
-        <ReactECharts option={causeOpt} style={{ height: 220 }} opts={{ renderer: 'canvas' }} />
+        <ReactECharts key={selectedMonth} option={causeOpt} style={{ height: 220 }} opts={{ renderer: 'canvas' }} />
       </PanelCard>
     </>
   );
