@@ -38,10 +38,10 @@ export default function AMapView({
   onMarkerClick,
   children,
   showDistrictLabel = true,
-  zoom = 9,
+  zoom = 13,
   districtDetail,
   autoRotate = false,
-  rotateInterval = 5000,
+  rotateInterval = 20000,
   // 新增：拥堵路段和区域
   congestionRoads = [],
   congestionAreas = [],

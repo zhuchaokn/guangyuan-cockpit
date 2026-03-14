@@ -38,7 +38,7 @@ function ModuleSurveillanceAlert() {
   return <CockpitInner {...d} />;
 }
 
-function CockpitInner({ leftPanel, rightPanel, mapContent, bottomBar }) {
+function CockpitInner({ leftPanel, rightPanel, mapContent, bottomBar, videoModal }) {
   return (
     <>
       <div className="cockpit-left"><div className="panel-scroll">{leftPanel}</div></div>
@@ -47,6 +47,7 @@ function CockpitInner({ leftPanel, rightPanel, mapContent, bottomBar }) {
         {bottomBar && <div className="cockpit-bottom-bar">{bottomBar}</div>}
       </div>
       <div className="cockpit-right"><div className="panel-scroll">{rightPanel}</div></div>
+      {videoModal}
     </>
   );
 }

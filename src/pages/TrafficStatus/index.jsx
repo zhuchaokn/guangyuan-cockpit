@@ -53,6 +53,42 @@ function CompareSelector({ value, onChange }) {
   );
 }
 
+/* ── 视频弹窗组件 ──────────────────────────────────────────── */
+function VideoModal({ checkpoint, onClose }) {
+  if (!checkpoint) return null;
+
+  return (
+    <div className="video-modal-overlay" onClick={onClose}>
+      <div className="video-modal" onClick={(e) => e.stopPropagation()}>
+        <div className="video-modal-header">
+          <span className="video-title">📹 {checkpoint.name} - 视频监控</span>
+          <button className="video-close-btn" onClick={onClose}>✕</button>
+        </div>
+        <div className="video-modal-body">
+          <div className="video-offline-placeholder">
+            <div className="video-offline-icon">📹</div>
+            <div className="video-offline-text">视频离线</div>
+            <div className="video-offline-desc">该监控设备当前未连接，请稍后重试</div>
+          </div>
+          <div className="video-info-bar">
+            <span>卡口编号: {checkpoint.code || `CP-${checkpoint.rank.toString().padStart(3, '0')}`}</span>
+            <span>状态: <span style={{ color: '#ef4444' }}>离线</span></span>
+            <span>最后在线: {new Date(Date.now() - Math.random() * 3600000).toLocaleTimeString()}</span>
+          </div>
+        </div>
+        <div className="video-modal-footer">
+          <button className="video-action-btn" onClick={() => alert('已发送重连请求')}>
+            🔄 重新连接
+          </button>
+          <button className="video-action-btn secondary" onClick={onClose}>
+            关闭
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function AnomalyWrap({ change, children }) {
   const isAnomaly = change !== undefined && Math.abs(change) > 10;
   if (!isAnomaly) return children;
@@ -171,7 +207,7 @@ function DistrictRatesList({ districts, label1, label2, onDistrictClick, selecte
   );
 }
 
-function CheckpointBlock({ title, data, expanded, setExpanded, compareValue, onCompareChange, yoyType, onYoyChange }) {
+function CheckpointBlock({ title, data, expanded, setExpanded, compareValue, onCompareChange, yoyType, onYoyChange, onVideoClick }) {
   return (
     <PanelCard title={title}>
       <AnomalyWrap change={data.change}>
@@ -253,7 +289,7 @@ function CheckpointBlock({ title, data, expanded, setExpanded, compareValue, onC
                     className="video-btn"
                     onClick={(e) => {
                       e.stopPropagation();
-                      alert(`打开 ${c.name} 视频监控`);
+                      onVideoClick && onVideoClick(c);
                     }}
                   >
                     📹 查看视频监控
@@ -304,6 +340,7 @@ export default function useTrafficStatus() {
   const [showAllTypes, setShowAllTypes] = useState(false);
   const [selectedRoad, setSelectedRoad] = useState(null);
   const [selectedArea, setSelectedArea] = useState(null);
+  const [videoCheckpoint, setVideoCheckpoint] = useState(null);
   const autoRotateRef = useRef(null);
 
   const isDistrictRankActive = (activeTab === '城市概况' && (vehicleInnerTab === '辖区排名' || driverInnerTab === '辖区排名' || roadInnerTab === '辖区排名' || vehicleInnerTab === '两率' || driverInnerTab === '重点驾驶人两率'));
@@ -316,7 +353,7 @@ export default function useTrafficStatus() {
     autoRotateRef.current = setInterval(() => {
       idx = (idx + 1) % DISTRICTS_7.length;
       setSelectedDistrict(DISTRICTS_7[idx]);
-    }, 5000);
+    }, 20000);
     return () => { if (autoRotateRef.current) clearInterval(autoRotateRef.current); };
   }, [isDistrictRankActive]);
 
@@ -853,10 +890,10 @@ export default function useTrafficStatus() {
 
   /* ── 进出交通压力 LEFT (进城) / RIGHT (出城) ─────────────── */
   const ioLeftPanel = (
-    <CheckpointBlock title="进城车辆" data={inboundVehicles} expanded={expandedCpIn} setExpanded={setExpandedCpIn} compareValue={inboundCompare} onCompareChange={setInboundCompare} yoyType={inboundYoyType} onYoyChange={setInboundYoyType} />
+    <CheckpointBlock title="进城车辆" data={inboundVehicles} expanded={expandedCpIn} setExpanded={setExpandedCpIn} compareValue={inboundCompare} onCompareChange={setInboundCompare} yoyType={inboundYoyType} onYoyChange={setInboundYoyType} onVideoClick={setVideoCheckpoint} />
   );
   const ioRightPanel = (
-    <CheckpointBlock title="出城车辆" data={outboundVehicles} expanded={expandedCpOut} setExpanded={setExpandedCpOut} compareValue={outboundCompare} onCompareChange={setOutboundCompare} yoyType={outboundYoyType} onYoyChange={setOutboundYoyType} />
+    <CheckpointBlock title="出城车辆" data={outboundVehicles} expanded={expandedCpOut} setExpanded={setExpandedCpOut} compareValue={outboundCompare} onCompareChange={setOutboundCompare} yoyType={outboundYoyType} onYoyChange={setOutboundYoyType} onVideoClick={setVideoCheckpoint} />
   );
 
   /* ── Assemble ─────────────────────────────────────────────── */
@@ -1016,6 +1053,123 @@ export default function useTrafficStatus() {
           transition: all .2s;
         }
         .expand-btn:hover { background: rgba(0,212,255,.2); }
+
+        /* 视频弹窗样式 */
+        .video-modal-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,.7);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          animation: fadeIn .2s ease;
+        }
+        .video-modal {
+          background: linear-gradient(180deg, #0f172a 0%, #050b1a 100%);
+          border: 1px solid rgba(0,212,255,.3);
+          border-radius: 12px;
+          width: 640px;
+          max-width: 90vw;
+          box-shadow: 0 20px 60px rgba(0,0,0,.6);
+          animation: slideUp .3s ease;
+        }
+        .video-modal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 16px;
+          border-bottom: 1px solid rgba(0,212,255,.2);
+        }
+        .video-modal-header .video-title {
+          color: #00d4ff;
+          font-weight: 600;
+          font-size: .95rem;
+        }
+        .video-close-btn {
+          background: rgba(239,68,68,.15);
+          border: 1px solid rgba(239,68,68,.3);
+          border-radius: 4px;
+          color: #ef4444;
+          width: 28px;
+          height: 28px;
+          cursor: pointer;
+          font-size: .85rem;
+          transition: all .2s;
+        }
+        .video-close-btn:hover {
+          background: rgba(239,68,68,.25);
+        }
+        .video-modal-body {
+          padding: 20px;
+        }
+        .video-offline-placeholder {
+          background: #0a0f1a;
+          border: 1px dashed rgba(100,116,139,.3);
+          border-radius: 8px;
+          height: 320px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+        }
+        .video-offline-icon {
+          font-size: 3rem;
+          opacity: .4;
+          margin-bottom: 12px;
+        }
+        .video-offline-text {
+          color: #ef4444;
+          font-size: 1.1rem;
+          font-weight: 600;
+          margin-bottom: 8px;
+        }
+        .video-offline-desc {
+          color: #64748b;
+          font-size: .85rem;
+        }
+        .video-info-bar {
+          display: flex;
+          justify-content: space-between;
+          margin-top: 12px;
+          padding: 8px 12px;
+          background: rgba(0,0,0,.3);
+          border-radius: 6px;
+          font-size: .78rem;
+          color: #94a3b8;
+        }
+        .video-modal-footer {
+          display: flex;
+          justify-content: flex-end;
+          gap: 10px;
+          padding: 12px 16px;
+          border-top: 1px solid rgba(255,255,255,.06);
+        }
+        .video-action-btn {
+          padding: 8px 16px;
+          border-radius: 6px;
+          font-size: .82rem;
+          cursor: pointer;
+          transition: all .2s;
+          background: rgba(0,212,255,.15);
+          border: 1px solid rgba(0,212,255,.3);
+          color: #00d4ff;
+        }
+        .video-action-btn:hover {
+          background: rgba(0,212,255,.25);
+        }
+        .video-action-btn.secondary {
+          background: rgba(100,116,139,.15);
+          border-color: rgba(100,116,139,.3);
+          color: #94a3b8;
+        }
+        .video-action-btn.secondary:hover {
+          background: rgba(100,116,139,.25);
+        }
+        @keyframes slideUp {
+          from { opacity: 0; transform: translateY(20px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
       `}</style>
     </div>
   );
@@ -1130,5 +1284,10 @@ export default function useTrafficStatus() {
     />
   );
 
-  return { leftPanel, rightPanel, mapContent };
+  // 视频弹窗
+  const videoModal = videoCheckpoint ? (
+    <VideoModal checkpoint={videoCheckpoint} onClose={() => setVideoCheckpoint(null)} />
+  ) : null;
+
+  return { leftPanel, rightPanel, mapContent, videoModal };
 }
