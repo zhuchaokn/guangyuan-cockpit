@@ -245,6 +245,8 @@ export default function useTrafficStatus() {
   const [expandedCpIn, setExpandedCpIn] = useState(null);
   const [expandedCpOut, setExpandedCpOut] = useState(null);
   const [selectedDistrict, setSelectedDistrict] = useState(null);
+  const [showAllStatus, setShowAllStatus] = useState(false);
+  const [showAllTypes, setShowAllTypes] = useState(false);
   const autoRotateRef = useRef(null);
 
   const isDistrictRankActive = (activeTab === '城市概况' && (vehicleInnerTab === '辖区排名' || driverInnerTab === '辖区排名' || roadInnerTab === '辖区排名' || vehicleInnerTab === '两率' || driverInnerTab === '两率'));
@@ -314,19 +316,43 @@ export default function useTrafficStatus() {
           </ul>
         )}
 
-        {vehicleInnerTab === '状态分析' && (
-          <ReactECharts style={{ height: 200 }} option={{
-            ...CHART_BASE,
-            tooltip: { trigger: 'axis' },
-            xAxis: { ...X_AXIS, type: 'value' },
-            yAxis: { ...Y_AXIS, type: 'category', data: vehicleOwnership.statusTop5.map((s) => s.name).reverse() },
-            series: [{ type: 'bar', data: vehicleOwnership.statusTop5.map((s) => s.count).reverse(), itemStyle: { color: PALETTE[0] }, barWidth: 16 }],
-          }} />
-        )}
+        {vehicleInnerTab === '状态分析' && (() => {
+          const allStatus = vehicleOwnership.statusAll || [];
+          const top5 = allStatus.slice(0, 5);
+          const others = allStatus.slice(5);
+          const othersTotal = others.reduce((sum, s) => sum + s.count, 0);
+          const displayData = showAllStatus ? allStatus : [...top5, ...(othersTotal > 0 ? [{ name: '其他', count: othersTotal }] : [])];
+          return (
+            <>
+              <ReactECharts style={{ height: showAllStatus ? 280 : 200 }} option={{
+                ...CHART_BASE,
+                tooltip: { trigger: 'axis' },
+                xAxis: { ...X_AXIS, type: 'value' },
+                yAxis: { ...Y_AXIS, type: 'category', data: displayData.map((s) => s.name).reverse() },
+                series: [{ type: 'bar', data: displayData.map((s) => s.count).reverse(), itemStyle: { color: PALETTE[0] }, barWidth: 16 }],
+              }} />
+              <button className="expand-btn" onClick={() => setShowAllStatus(!showAllStatus)}>
+                {showAllStatus ? '收起' : '查看全部'}
+              </button>
+            </>
+          );
+        })()}
 
-        {vehicleInnerTab === '类型分布' && (
-          <ReactECharts style={{ height: 220 }} option={pieOption(vehicleOwnership.typeDistribution)} />
-        )}
+        {vehicleInnerTab === '类型分布' && (() => {
+          const allTypes = vehicleOwnership.typeAll || [];
+          const top5 = allTypes.slice(0, 5);
+          const others = allTypes.slice(5);
+          const othersTotal = others.reduce((sum, t) => sum + t.value, 0);
+          const displayData = showAllTypes ? allTypes : [...top5, ...(othersTotal > 0 ? [{ name: '其他', value: othersTotal }] : [])];
+          return (
+            <>
+              <ReactECharts style={{ height: 220 }} option={pieOption(displayData)} />
+              <button className="expand-btn" onClick={() => setShowAllTypes(!showAllTypes)}>
+                {showAllTypes ? '收起' : '查看全部'}
+              </button>
+            </>
+          );
+        })()}
 
         {vehicleInnerTab === '使用性质' && (
           <ReactECharts style={{ height: 220 }} option={{
@@ -843,6 +869,13 @@ export default function useTrafficStatus() {
           from { opacity: 0; max-height: 0; }
           to { opacity: 1; max-height: 200px; }
         }
+        .expand-btn {
+          display: block; width: 100%; margin-top: 8px; padding: 6px 0;
+          background: rgba(0,212,255,.1); border: 1px solid rgba(0,212,255,.3);
+          border-radius: 4px; color: #00d4ff; font-size: .75rem; cursor: pointer;
+          transition: all .2s;
+        }
+        .expand-btn:hover { background: rgba(0,212,255,.2); }
       `}</style>
     </div>
   );
@@ -874,8 +907,23 @@ export default function useTrafficStatus() {
     return undefined;
   };
 
+  // 获取选中辖区的详情数据
+  const getSelectedDistrictDetail = () => {
+    if (!selectedDistrict) return null;
+    if (activeTab === '城市概况' && (vehicleInnerTab === '辖区排名' || vehicleInnerTab === '两率')) {
+      return vehicleOwnership.districtRank.find(d => d.name === selectedDistrict);
+    }
+    if (activeTab === '城市概况' && (driverInnerTab === '辖区排名' || driverInnerTab === '两率')) {
+      return driverOwnership.districtRank.find(d => d.name === selectedDistrict);
+    }
+    if (activeTab === '城市概况' && roadInnerTab === '辖区排名') {
+      return roadNetwork.districtRank.find(d => d.name === selectedDistrict);
+    }
+    return null;
+  };
+
   const mapContent = (
-    <MapView districtColors={getMapDistrictColors()} />
+    <MapView districtColors={getMapDistrictColors()} districtDetail={getSelectedDistrictDetail()} />
   );
 
   return { leftPanel, rightPanel, mapContent };

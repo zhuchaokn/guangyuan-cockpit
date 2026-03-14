@@ -86,16 +86,45 @@ export const trafficStatusData = {
   vehicleOwnership: {
     total: 523680,
     monthlyTrend: MONTHS.map((_, i) => ({ month: MONTHS[i], total: 500000 + i * 2000 + rand(-500, 500), added: rand(1800, 2600), cancelled: rand(300, 600) })),
-    districtRank: DISTRICTS.map(d => ({ name: d, count: rand(45000, 120000), change: randFloat(-2, 5) })).sort((a,b) => b.count - a.count),
-    statusTop5: [
-      { name: '正常', count: 468200 }, { name: '转出', count: 23400 },
-      { name: '被盗抢', count: 1240 }, { name: '注销', count: 18600 }, { name: '其他', count: 12240 }
+    districtRank: DISTRICTS.map(d => ({
+      name: d,
+      count: rand(45000, 120000),
+      change: randFloat(-2, 5),
+      // 详细状态数据
+      normal: rand(40000, 100000),
+      transferOut: rand(1500, 3500),
+      stolen: rand(80, 300),
+      notInspected: rand(400, 1200),
+      cancelled: rand(800, 2500),
+      seized: rand(200, 800),
+      illegal: rand(500, 1500)
+    })).sort((a,b) => b.count - a.count),
+    statusAll: [
+      { name: '正常', count: 468200 },
+      { name: '转出', count: 23400 },
+      { name: '注销', count: 18600 },
+      { name: '未年审', count: 8600 },
+      { name: '违法未处理', count: 4200 },
+      { name: '查封', count: 1800 },
+      { name: '被盗抢', count: 1240 },
+      { name: '其他', count: 640 }
     ],
-    typeDistribution: [
-      { name: '小型轿车', value: 62 }, { name: '小型SUV', value: 18 },
-      { name: '中型货车', value: 8 }, { name: '大型货车', value: 5 }, { name: '其他', value: 7 }
+    typeAll: [
+      { name: '小型轿车', value: 52 },
+      { name: '小型SUV', value: 18 },
+      { name: '摩托车', value: 10 },
+      { name: '中型货车', value: 6 },
+      { name: '大型货车', value: 5 },
+      { name: '特种车辆', value: 4 },
+      { name: '其他', value: 5 }
     ],
-    usageNature: [{ name: '营运', value: 15 }, { name: '非营运', value: 85 }],
+    usageNature: [
+      { name: '非营运', value: 85 },
+      { name: '公路客运', value: 5 },
+      { name: '旅游客运', value: 3 },
+      { name: '危化品运输', value: 2 },
+      { name: '其他营运', value: 5 }
+    ],
     inspectionRate: 92.1, scrapRate: 98.5
   },
   driverOwnership: {

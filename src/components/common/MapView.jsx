@@ -41,10 +41,19 @@ export default function MapView({
   children,
   showDistrictLabel = true,
   zoom = 1,
+  districtDetail,
 }) {
   const chartRef = useRef(null);
   const instanceRef = useRef(null);
   const [ready, setReady] = useState(false);
+
+  // 找到当前选中辖区的详情数据
+  const selectedDistrictData = useMemo(() => {
+    if (!districtDetail || !districtColors) return null;
+    const selected = districtColors.find(d => d.name === districtDetail.name);
+    if (!selected) return null;
+    return districtDetail;
+  }, [districtDetail, districtColors]);
 
   useEffect(() => {
     let disposed = false;
@@ -307,10 +316,75 @@ export default function MapView({
         transition: 'opacity .5s',
       }} />
 
+      {selectedDistrictData && (
+        <div className="district-detail-popup">
+          <div className="detail-header">
+            <span className="detail-title">{selectedDistrictData.name}</span>
+            <span className="detail-total">保有量: {selectedDistrictData.count?.toLocaleString()}</span>
+          </div>
+          <div className="detail-body">
+            <div className="detail-row"><span>正常</span><span>{selectedDistrictData.normal?.toLocaleString()}</span></div>
+            <div className="detail-row"><span>转出</span><span>{selectedDistrictData.transferOut?.toLocaleString()}</span></div>
+            <div className="detail-row"><span>被盗抢</span><span>{selectedDistrictData.stolen?.toLocaleString()}</span></div>
+            <div className="detail-row"><span>未年审</span><span>{selectedDistrictData.notInspected?.toLocaleString()}</span></div>
+            <div className="detail-row"><span>注销</span><span>{selectedDistrictData.cancelled?.toLocaleString()}</span></div>
+            <div className="detail-row"><span>查封</span><span>{selectedDistrictData.seized?.toLocaleString()}</span></div>
+            <div className="detail-row"><span>违法未处理</span><span>{selectedDistrictData.illegal?.toLocaleString()}</span></div>
+          </div>
+        </div>
+      )}
+
       {children}
 
       <style>{`
         @keyframes spin { to { transform: rotate(360deg); } }
+        .district-detail-popup {
+          position: absolute;
+          top: 50%;
+          right: 20px;
+          transform: translateY(-50%);
+          background: rgba(5,11,26,.95);
+          border: 1px solid rgba(0,212,255,.4);
+          border-radius: 8px;
+          padding: 12px 16px;
+          min-width: 180px;
+          box-shadow: 0 4px 20px rgba(0,0,0,.5);
+          animation: fadeIn .3s ease;
+        }
+        .district-detail-popup .detail-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-bottom: 8px;
+          border-bottom: 1px solid rgba(0,212,255,.2);
+          margin-bottom: 8px;
+        }
+        .district-detail-popup .detail-title {
+          color: #00d4ff;
+          font-weight: 700;
+          font-size: .9rem;
+        }
+        .district-detail-popup .detail-total {
+          color: #94a3b8;
+          font-size: .75rem;
+        }
+        .district-detail-popup .detail-body {
+          font-size: .78rem;
+        }
+        .district-detail-popup .detail-row {
+          display: flex;
+          justify-content: space-between;
+          padding: 4px 0;
+          color: #cbd5e1;
+        }
+        .district-detail-popup .detail-row span:last-child {
+          color: #00d4ff;
+          font-family: 'JetBrains Mono', monospace;
+        }
+        @keyframes fadeIn {
+          from { opacity: 0; transform: translateY(-50%) translateX(10px); }
+          to { opacity: 1; transform: translateY(-50%) translateX(0); }
+        }
       `}</style>
     </div>
   );
