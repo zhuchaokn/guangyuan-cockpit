@@ -655,16 +655,49 @@ export default function AMapView({
         <div className="district-detail-popup">
           <div className="detail-header">
             <span className="detail-title">{districtDetail.name}</span>
-            <span className="detail-total">保有量: {districtDetail.count?.toLocaleString()}</span>
+            {districtDetail.count !== undefined && (
+              <span className="detail-total">保有量: {districtDetail.count?.toLocaleString()}</span>
+            )}
+            {districtDetail.totalKm !== undefined && (
+              <span className="detail-total">总里程: {districtDetail.totalKm?.toLocaleString()} km</span>
+            )}
           </div>
           <div className="detail-body">
-            <div className="detail-row"><span>正常</span><span>{districtDetail.normal?.toLocaleString()}</span></div>
-            <div className="detail-row"><span>转出</span><span>{districtDetail.transferOut?.toLocaleString()}</span></div>
-            <div className="detail-row"><span>被盗抢</span><span>{districtDetail.stolen?.toLocaleString()}</span></div>
-            <div className="detail-row"><span>未年审</span><span>{districtDetail.notInspected?.toLocaleString()}</span></div>
-            <div className="detail-row"><span>注销</span><span>{districtDetail.cancelled?.toLocaleString()}</span></div>
-            <div className="detail-row"><span>查封</span><span>{districtDetail.seized?.toLocaleString()}</span></div>
-            <div className="detail-row"><span>违法未处理</span><span>{districtDetail.illegal?.toLocaleString()}</span></div>
+            {/* 车辆保有量详情 */}
+            {districtDetail.normal !== undefined && (
+              <>
+                <div className="detail-row"><span>正常</span><span>{districtDetail.normal?.toLocaleString()}</span></div>
+                <div className="detail-row"><span>转出</span><span>{districtDetail.transferOut?.toLocaleString()}</span></div>
+                <div className="detail-row"><span>被盗抢</span><span>{districtDetail.stolen?.toLocaleString()}</span></div>
+                <div className="detail-row"><span>未年审</span><span>{districtDetail.notInspected?.toLocaleString()}</span></div>
+                <div className="detail-row"><span>注销</span><span>{districtDetail.cancelled?.toLocaleString()}</span></div>
+                <div className="detail-row"><span>查封</span><span>{districtDetail.seized?.toLocaleString()}</span></div>
+                <div className="detail-row"><span>违法未处理</span><span>{districtDetail.illegal?.toLocaleString()}</span></div>
+              </>
+            )}
+            {/* 路网详情 */}
+            {districtDetail.density !== undefined && (
+              <>
+                <div className="detail-row">
+                  <span>路网密度</span>
+                  <span style={{ color: '#f59e0b' }}>{districtDetail.density} km/km²</span>
+                </div>
+                <div className="detail-section-title">道路类型</div>
+                {(districtDetail.roadTypes || []).map((road, i) => (
+                  <div key={i} className="detail-row">
+                    <span>{road.type}</span>
+                    <span>{road.km} km ({road.count}条)</span>
+                  </div>
+                ))}
+              </>
+            )}
+            {/* 驾驶人详情 */}
+            {districtDetail.registered !== undefined && (
+              <>
+                <div className="detail-row"><span>注册</span><span>{districtDetail.registered?.toLocaleString()}</span></div>
+                <div className="detail-row"><span>注销</span><span>{districtDetail.cancelled?.toLocaleString()}</span></div>
+              </>
+            )}
           </div>
         </div>
       )}
@@ -716,6 +749,13 @@ export default function AMapView({
         .district-detail-popup .detail-row span:last-child {
           color: #00d4ff;
           font-family: 'JetBrains Mono', monospace;
+        }
+        .district-detail-popup .detail-section-title {
+          color: #64748b;
+          font-size: .7rem;
+          padding: 8px 0 4px;
+          margin-top: 4px;
+          border-top: 1px dashed rgba(255,255,255,.1);
         }
         @keyframes fadeIn {
           from { opacity: 0; transform: translateY(-50%) translateX(10px); }

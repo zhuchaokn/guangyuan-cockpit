@@ -169,7 +169,17 @@ export const trafficStatusData = {
       { type: '次干路', standard: 3, actual: 3.4, km: 256.8, count: 42 },
       { type: '支路', standard: 6, actual: 5.2, km: 412.3, count: 156 }
     ],
-    districtRank: DISTRICTS.map(d => ({ name: d, density: randFloat(2.5, 7.2), totalKm: rand(800, 2400) })).sort((a,b) => b.density - a.density)
+    districtRank: DISTRICTS.map(d => ({
+      name: d,
+      density: randFloat(2.5, 7.2),
+      totalKm: rand(800, 2400),
+      roadTypes: [
+        { type: '快速路', km: rand(15, 50), count: rand(1, 4) },
+        { type: '主干路', km: rand(80, 160), count: rand(10, 25) },
+        { type: '次干路', km: rand(150, 320), count: rand(30, 55) },
+        { type: '支路', km: rand(300, 550), count: rand(100, 200) }
+      ]
+    })).sort((a,b) => b.density - a.density)
   },
   trafficIndex: {
     current: 3.2, avgSpeed: 38.5, congestionKm: 12.3, congestionChange: 5.2,

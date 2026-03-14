@@ -325,7 +325,7 @@ export default function useTrafficStatus() {
     activeVehicles, transitVehicles, inboundVehicles, outboundVehicles,
   } = trafficStatusData;
 
-  const vehicleInnerTabs = ['趋势', '辖区排名', '状态分析', '类型分布', '使用性质', '两率'];
+  const vehicleInnerTabs = ['趋势', '辖区排名', '状态分析', '类型分析', '使用性质', '两率'];
   const driverInnerTabs = ['趋势', '辖区排名', '驾证状态', '年龄构成', '驾龄分布', '驾证类型', '重点驾驶人两率'];
   const roadInnerTabs = ['路网概况', '合理性对比', '辖区排名'];
 
@@ -395,7 +395,7 @@ export default function useTrafficStatus() {
           );
         })()}
 
-        {vehicleInnerTab === '类型分布' && (() => {
+        {vehicleInnerTab === '类型分析' && (() => {
           const allTypes = vehicleOwnership.typeAll || [];
           const top5 = allTypes.slice(0, 5);
           const others = allTypes.slice(5);
@@ -403,7 +403,13 @@ export default function useTrafficStatus() {
           const displayData = showAllTypes ? allTypes : [...top5, ...(othersTotal > 0 ? [{ name: '其他', value: othersTotal }] : [])];
           return (
             <>
-              <ReactECharts style={{ height: 220 }} option={pieOption(displayData)} />
+              <ReactECharts style={{ height: showAllTypes ? 280 : 200 }} option={{
+                ...CHART_BASE,
+                tooltip: { trigger: 'axis' },
+                xAxis: { ...X_AXIS, type: 'value' },
+                yAxis: { ...Y_AXIS, type: 'category', data: displayData.map((t) => t.name).reverse() },
+                series: [{ type: 'bar', data: displayData.map((t) => t.value).reverse(), itemStyle: { color: PALETTE[1] }, barWidth: 16 }],
+              }} />
               <button className="expand-btn" onClick={() => setShowAllTypes(!showAllTypes)}>
                 {showAllTypes ? '收起' : '查看全部'}
               </button>
@@ -1081,7 +1087,15 @@ export default function useTrafficStatus() {
       return driverOwnership.districtRank.find(d => d.name === selectedDistrict);
     }
     if (activeTab === '城市概况' && roadInnerTab === '辖区排名') {
-      return roadNetwork.districtRank.find(d => d.name === selectedDistrict);
+      const roadData = roadNetwork.districtRank.find(d => d.name === selectedDistrict);
+      if (roadData) {
+        return {
+          name: roadData.name,
+          totalKm: roadData.totalKm,
+          density: roadData.density,
+          roadTypes: roadData.roadTypes || []
+        };
+      }
     }
     return null;
   };
