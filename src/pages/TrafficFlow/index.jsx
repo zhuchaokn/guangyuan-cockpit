@@ -2,7 +2,7 @@ import { useState } from 'react';
 import ReactECharts from 'echarts-for-react';
 import PanelCard from '../../components/common/PanelCard';
 import DataCard from '../../components/common/DataCard';
-import MapView from '../../components/common/MapView';
+import AMapView from '../../components/common/AMapView';
 import { trafficFlowData, MONTHS } from '../../data/mockData';
 
 const CHART_COLORS = { current: '#00d4ff', lastYear: '#64748b' };
@@ -201,7 +201,7 @@ export default function useTrafficFlow() {
 
   const mapContent = (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-      <MapView />
+      <AMapView />
     </div>
   );
 

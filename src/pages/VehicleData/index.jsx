@@ -2,7 +2,7 @@ import { useState } from 'react';
 import ReactECharts from 'echarts-for-react';
 import PanelCard from '../../components/common/PanelCard';
 import DataCard from '../../components/common/DataCard';
-import MapView from '../../components/common/MapView';
+import AMapView from '../../components/common/AMapView';
 import { vehicleDataMgmt } from '../../data/mockData';
 
 // 获取近30天日期范围
@@ -194,7 +194,7 @@ export default function useVehicleData() {
 
   const mapContent = (
     <div style={{ width: '100%', height: '100%', position: 'relative' }}>
-      <MapView />
+      <AMapView />
     </div>
   );
 

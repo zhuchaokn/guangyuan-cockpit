@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import ReactECharts from 'echarts-for-react';
 import PanelCard from '../../components/common/PanelCard';
 import DataCard from '../../components/common/DataCard';
-import MapView from '../../components/common/MapView';
+import AMapView from '../../components/common/AMapView';
 import { trafficStatusData } from '../../data/mockData';
 
 const TABS = ['城市概况', '运行概况', '内部交通压力', '进出交通压力'];
@@ -1050,7 +1050,7 @@ export default function useTrafficStatus() {
   };
 
   const mapContent = (
-    <MapView districtColors={getMapDistrictColors()} districtDetail={getSelectedDistrictDetail()} />
+    <AMapView districtColors={getMapDistrictColors()} districtDetail={getSelectedDistrictDetail()} />
   );
 
   return { leftPanel, rightPanel, mapContent };
